@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.UUID;
 
 /**
  * Модель обьекта сообщения чата
@@ -17,10 +16,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessage extends ParentEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
-
     @NotNull
     @Size(min = 1, max = 2048)
     private String text;
@@ -29,7 +24,7 @@ public class ChatMessage extends ParentEntity {
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
-    private ChatUser user;
+    private AppUser user;
 }

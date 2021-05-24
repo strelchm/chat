@@ -7,23 +7,24 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
+import java.util.Set;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRole extends ParentEntity {
+public class ChatRoomRole extends ParentEntity {
     @Enumerated(EnumType.STRING)
     private Role name;
 
-    @OneToOne(mappedBy = "role")
-    private ChatUser user;
+    @OneToMany(mappedBy = "role")
+    private Set<ChatRoomUser> users;
 
-    public static enum Role {
-        USER,
+    public enum Role {
+        OWNER,
         BLOCKED_USER,
         MODERATOR,
-        ADMIN
+        USER
     }
 }

@@ -16,7 +16,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatUser extends ParentEntity {
+public class AppUser extends ParentEntity {
     @NotNull
     @Size(min = 1, max = 50)
     @Column(unique = true)
@@ -29,13 +29,10 @@ public class ChatUser extends ParentEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @OneToOne
-    @JoinColumn(name = "role_id", referencedColumnName = "id")
-    private UserRole role;
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private AppUserRole role;
 
-    @ManyToMany
-    @JoinTable(name = "chat_room_users",
-            joinColumns = {@JoinColumn(name = "chat_room_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "chat_user_id", referencedColumnName = "id")})
-    private Set<ChatRoom> chatRooms;
+    @OneToMany(mappedBy = "appUser")
+    private Set<ChatRoomUser> chatRoomUsers;
 }
