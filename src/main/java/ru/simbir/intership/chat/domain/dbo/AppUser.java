@@ -3,6 +3,7 @@ package ru.simbir.intership.chat.domain.dbo;
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -10,10 +11,11 @@ import javax.validation.constraints.Size;
 import java.util.Set;
 
 /**
- * Пользователь
+ * Модель пользователя системы
  */
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class AppUser extends ParentEntity {
