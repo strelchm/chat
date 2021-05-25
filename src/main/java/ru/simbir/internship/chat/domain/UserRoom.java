@@ -1,55 +1,56 @@
 package ru.simbir.internship.chat.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Set;
+import java.util.UUID;
 
+/**
+ * Чат-комната <===> пользователь чата
+ */
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "room_user")
+@AllArgsConstructor
 public class UserRoom {
-
     @Embeddable
     private static class Key implements Serializable {
         @Column(name = "user_id")
-        private Long userId;
+        private UUID userId;
         @Column(name = "room_id")
-        private Long roomId;
+        private UUID roomId;
     }
 
     @EmbeddedId
-    private Key id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private User user;
+    private UserRoom.Key id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", insertable = false, updatable = false)
     private Room room;
 
-    @Column(nullable = false)
-    private Boolean owner;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
 
-    private Boolean moderator;
+    @ElementCollection
+    private Set<UserRoomRole> userRoomRoles;
 
-    private Boolean blocked;
+    private LocalDateTime blockedTime;
 
-    @Column(name = "block_until")
-    private Date blockUntil;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
+    @Column(name = "created")
     private Date created;
 
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
+    @LastModifiedDate
+    @Column(name = "updated")
     private Date updated;
-
 }

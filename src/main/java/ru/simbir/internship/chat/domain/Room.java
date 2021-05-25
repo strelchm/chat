@@ -1,37 +1,34 @@
 package ru.simbir.internship.chat.domain;
 
+import com.sun.istack.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
+import javax.validation.constraints.Size;
+import java.util.Set;
 
+/**
+ * Модель чат-комнаты
+ */
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class Room {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private Boolean closed;
+@AllArgsConstructor
+public class Room extends ParentEntity {
+    @NotNull
+    @Size(min = 1, max = 50)
+    private String name;
 
     @OneToMany(mappedBy = "room")
-    private List<UserRoom> users;
+    private Set<Message> messages;
 
     @OneToMany(mappedBy = "room")
-    private List<Message> messages;
+    private Set<UserRoom> users;
 
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date created;
-
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updated;
-
+    @Enumerated(EnumType.STRING)
+    private RoomType type;
 }

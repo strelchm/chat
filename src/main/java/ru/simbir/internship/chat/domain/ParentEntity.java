@@ -1,8 +1,6 @@
-package ru.simbir.intership.chat.domain.dbo;
+package ru.simbir.internship.chat.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 

@@ -1,55 +1,40 @@
 package ru.simbir.internship.chat.domain;
 
+import com.sun.istack.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import java.util.Date;
-import java.util.List;
+import javax.validation.constraints.Size;
+import java.util.Set;
 
+/**
+ * Модель пользователя системы
+ */
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "users")
-public class User {
+public class User extends ParentEntity {
+    @NotNull
+    @Size(min = 1, max = 50)
+    @Column(unique = true)
+    private String login;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
-
-    @NotEmpty
-    @Column(name = "user_name")
-    private String userName;
-
-    @NotEmpty
+    @NotNull
+    @Size(min = 8, max = 100)
     private String password;
 
-    @Email
-    private String email;
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
-    @Column(nullable = false)
-    private Boolean active;
-
-    @OneToMany(mappedBy = "user")
-    private List<Message> messages;
+    @ElementCollection
+    private Set<UserAppRole> userAppRoles;
 
     @OneToMany(mappedBy = "user")
-    private List<UserRoom> rooms;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date created;
-
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updated;
-
+    private Set<UserRoom> rooms;
 }
