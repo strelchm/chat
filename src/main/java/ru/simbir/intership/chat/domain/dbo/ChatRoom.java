@@ -27,7 +27,7 @@ public class ChatRoom extends ParentEntity {
     private Set<ChatMessage> messages;
 
     @OneToMany(mappedBy = "chatRoom")
-    private Set<ChatRoomUser> chatRoomUsers;
+    private Set<ChatRoomMembership> chatRoomMemberships;
 
     @Enumerated(EnumType.STRING)
     private ChartRoomType type;

@@ -24,7 +24,7 @@ public class ChatRoomRole extends ParentEntity {
     private Role name;
 
     @OneToMany(mappedBy = "role")
-    private Set<ChatRoomUser> users;
+    private Set<ChatRoomMembership> users;
 
     public enum Role {
         OWNER,

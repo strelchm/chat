@@ -11,14 +11,14 @@ import javax.persistence.ManyToOne;
 import java.time.LocalDateTime;
 
 /**
- * Чат-комната <===> пользователь чата
+ * Модель участия в чат-комнате
  */
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatRoomUser extends ParentEntity {
+public class ChatRoomMembership extends ParentEntity {
     @ManyToOne
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;

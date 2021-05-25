@@ -36,5 +36,5 @@ public class AppUser extends ParentEntity {
     private AppUserRole role;
 
     @OneToMany(mappedBy = "appUser")
-    private Set<ChatRoomUser> chatRoomUsers;
+    private Set<ChatRoomMembership> chatRoomMemberships;
 }
