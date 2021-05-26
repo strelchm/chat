@@ -1,4 +1,4 @@
-package ru.simbir.intership.chat.domain.dbo;
+package ru.simbir.internship.chat.domain;
 
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,17 +18,17 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatRoom extends ParentEntity {
+public class Room extends ParentEntity {
     @NotNull
     @Size(min = 1, max = 50)
     private String name;
 
-    @OneToMany(mappedBy = "chatRoom")
-    private Set<ChatMessage> messages;
+    @OneToMany(mappedBy = "room")
+    private Set<Message> messages;
 
-    @OneToMany(mappedBy = "chatRoom")
-    private Set<ChatRoomUser> chatRoomUsers;
+    @OneToMany(mappedBy = "room")
+    private Set<UserRoom> users;
 
     @Enumerated(EnumType.STRING)
-    private ChartRoomType type;
+    private RoomType type;
 }

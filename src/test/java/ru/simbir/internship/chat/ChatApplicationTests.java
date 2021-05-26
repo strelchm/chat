@@ -1,4 +1,4 @@
-package ru.simbir.intership.chat;
+package ru.simbir.internship.chat;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

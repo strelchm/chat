@@ -1,13 +1,13 @@
-package ru.simbir.intership.chat.domain.dbo;
+package ru.simbir.internship.chat.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Модель сообщения чата
@@ -17,16 +17,16 @@ import javax.validation.constraints.Size;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatMessage extends ParentEntity {
-    @NotNull
-    @Size(min = 1, max = 2048)
+public class Message extends ParentEntity {
+    @NotBlank
+    @Length(max = 2048, message = "The message is too long")
     private String text;
 
     @ManyToOne
-    @JoinColumn(name = "chat_room_id")
-    private ChatRoom chatRoom;
+    @JoinColumn(name = "room_id")
+    private Room room;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private AppUser user;
+    private User user;
 }

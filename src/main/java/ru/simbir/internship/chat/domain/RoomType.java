@@ -1,9 +1,9 @@
-package ru.simbir.intership.chat.domain.dbo;
+package ru.simbir.internship.chat.domain;
 
 /**
  * Тип чат-комнаты
  */
-public enum ChartRoomType {
+public enum RoomType {
     PRIVATE,
     PUBLIC,
     BOT

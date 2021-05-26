@@ -1,4 +1,4 @@
-package ru.simbir.intership.chat.domain.dbo;
+package ru.simbir.internship.chat.domain;
 
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,7 +18,8 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppUser extends ParentEntity {
+@Table(name = "users")
+public class User extends ParentEntity {
     @NotNull
     @Size(min = 1, max = 50)
     @Column(unique = true)
@@ -31,10 +32,9 @@ public class AppUser extends ParentEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private AppUserRole role;
+    @ElementCollection
+    private Set<UserAppRole> userAppRoles;
 
-    @OneToMany(mappedBy = "appUser")
-    private Set<ChatRoomUser> chatRoomUsers;
+    @OneToMany(mappedBy = "user")
+    private Set<UserRoom> rooms;
 }
