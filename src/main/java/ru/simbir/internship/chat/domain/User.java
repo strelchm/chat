@@ -36,5 +36,8 @@ public class User extends ParentEntity {
     private Set<UserAppRole> userAppRoles;
 
     @OneToMany(mappedBy = "user")
-    private Set<UserRoom> rooms;
+    private Set<UserRoom> userRooms;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Message> messages;
 }
