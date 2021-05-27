@@ -27,7 +27,7 @@ public class Room extends ParentEntity {
     private Set<Message> messages;
 
     @OneToMany(mappedBy = "room")
-    private Set<UserRoom> users;
+    private Set<UserRoom> userRooms;
 
     @Enumerated(EnumType.STRING)
     private RoomType type;

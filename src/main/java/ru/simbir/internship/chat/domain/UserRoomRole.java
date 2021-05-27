@@ -1,6 +1,6 @@
 package ru.simbir.internship.chat.domain;
 
-enum UserRoomRole {
+public enum UserRoomRole {
         OWNER,
         BLOCKED_USER,
         MODERATOR,
