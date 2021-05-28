@@ -24,28 +24,28 @@ public class RoomController extends ParentController {
     }
 
     @GetMapping
-    public List<RoomDto> getAllMessages() {
+    public List<RoomDto> getAllRooms() {
         return roomService.getAll();
     }
 
     @GetMapping("/{id}")
-    public RoomDto getMessageById(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) {
+    public RoomDto getRoomById(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) {
         return roomService.getById(id);
     }
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
-    public IdDto createMessage(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody RoomDto dto) {
+    public IdDto createRoom(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody RoomDto dto) {
         return new IdDto(roomService.add(dto));
     }
 
     @PutMapping("/{id}")
-    public RoomDto updateMessage(@NotNull(message = NULL_UPDATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody RoomDto dto) {
+    public RoomDto updateRoom(@NotNull(message = NULL_UPDATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody RoomDto dto) {
         return roomService.edit(dto);
     }
 
     @PatchMapping("/{id}")
-    public RoomDto patchMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
+    public RoomDto patchRoom(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                                 @NotNull(message = NULL_PATCH_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody RoomDto dto) {
         RoomDto roomDto = roomService.getById(id);
 
@@ -62,7 +62,7 @@ public class RoomController extends ParentController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public RoomDto delete(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) { // todo - void return type
+    public RoomDto deleteRoom(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) { // todo - void return type
         RoomDto messageDto = roomService.getById(id); // todo
         return roomService.delete(messageDto);
     }
