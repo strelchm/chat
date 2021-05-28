@@ -3,7 +3,7 @@ package ru.simbir.internship.chat.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.simbir.internship.chat.dto.MessageDto;
-import ru.simbir.internship.chat.exceptions.NotFoundException;
+import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.repository.MessageRepository;
 import ru.simbir.internship.chat.util.MappingUtil;
 

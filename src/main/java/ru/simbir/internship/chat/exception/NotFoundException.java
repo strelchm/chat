@@ -1,4 +1,4 @@
-package ru.simbir.internship.chat.exceptions;
+package ru.simbir.internship.chat.exception;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException() {
