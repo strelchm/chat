@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.simbir.internship.chat.dto.IdDto;
 import ru.simbir.internship.chat.dto.RoomDto;
 import ru.simbir.internship.chat.service.RoomService;
+import ru.simbir.internship.chat.service.UserService;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -17,10 +18,13 @@ import java.util.UUID;
 @Validated
 public class RoomController extends ParentController {
     private final RoomService roomService;
+    private final UserService userService;
 
     @Autowired
-    public RoomController(RoomService roomService) {
+    public RoomController(RoomService roomService, UserService userService) {
+        super(userService);
         this.roomService = roomService;
+        this.userService = userService;
     }
 
     @GetMapping

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.simbir.internship.chat.dto.IdDto;
 import ru.simbir.internship.chat.dto.MessageDto;
 import ru.simbir.internship.chat.service.MessageService;
+import ru.simbir.internship.chat.service.UserService;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -17,10 +18,13 @@ import java.util.UUID;
 @Validated
 public class MessageController extends ParentController {
     private final MessageService messageService;
+    private final UserService userService;
 
     @Autowired
-    public MessageController(MessageService messageService) {
+    public MessageController(MessageService messageService, UserService userService) {
+        super(userService);
         this.messageService = messageService;
+        this.userService = userService;
     }
 
     @GetMapping

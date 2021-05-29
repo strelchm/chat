@@ -4,13 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.simbir.internship.chat.domain.UserAppRole;
+import ru.simbir.internship.chat.domain.UserStatus;
 import ru.simbir.internship.chat.dto.IdDto;
 import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.service.UserService;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,6 +21,7 @@ public class UserController extends ParentController {
 
     @Autowired
     public UserController(UserService userService) {
+        super(userService);
         this.userService = userService;
     }
 
@@ -36,6 +38,10 @@ public class UserController extends ParentController {
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
     public IdDto createUser(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody UserDto dto) {
+        dto.setStatus(UserStatus.ACTIVE);
+        Set<UserAppRole> roles = new HashSet<>();
+        roles.add(UserAppRole.CLIENT);
+        dto.setUserAppRoles(roles);
         return new IdDto(userService.add(dto));
     }
 
