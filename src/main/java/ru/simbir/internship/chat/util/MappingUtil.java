@@ -1,6 +1,5 @@
 package ru.simbir.internship.chat.util;
 
-import org.jetbrains.annotations.NotNull;
 import ru.simbir.internship.chat.domain.Message;
 import ru.simbir.internship.chat.domain.Room;
 import ru.simbir.internship.chat.domain.User;
