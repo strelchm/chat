@@ -1,6 +1,5 @@
 package ru.simbir.internship.chat.util;
 
-import org.springframework.stereotype.Service;
 import ru.simbir.internship.chat.domain.Message;
 import ru.simbir.internship.chat.domain.Room;
 import ru.simbir.internship.chat.domain.User;
@@ -12,10 +11,10 @@ import ru.simbir.internship.chat.dto.UserRoomDto;
 
 import java.util.stream.Collectors;
 
-@Service
 public class MappingUtil {
 
     public static MessageDto mapToMessageDto(Message entity) {
+        if (entity == null) return null;
         MessageDto dto = new MessageDto();
         dto.setId(entity.getId());
         dto.setText(entity.getText());
@@ -27,6 +26,7 @@ public class MappingUtil {
     }
 
     public static Message mapToMessageEntity(MessageDto dto) {
+        if (dto == null) return null;
         Message entity = new Message();
         entity.setId(dto.getId());
         entity.setText(dto.getText());
@@ -38,6 +38,7 @@ public class MappingUtil {
     }
 
     public static RoomDto mapToRoomDto(Room entity){
+        if (entity == null) return null;
         RoomDto dto = new RoomDto();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
@@ -50,6 +51,7 @@ public class MappingUtil {
     }
 
     public static Room mapToRoomEntity(RoomDto dto){
+        if (dto == null) return null;
         Room entity = new Room();
         entity.setId(dto.getId());
         entity.setName(dto.getName());
@@ -62,6 +64,7 @@ public class MappingUtil {
     }
 
     public static UserDto mapToUserDto(User entity){
+        if (entity == null) return null;
         UserDto dto = new UserDto();
         dto.setId(entity.getId());
         dto.setLogin(entity.getLogin());
@@ -76,6 +79,7 @@ public class MappingUtil {
     }
 
     public static User mapToUserEntity(UserDto dto){
+        if (dto == null) return null;
         User entity = new User();
         entity.setId(dto.getId());
         entity.setLogin(dto.getLogin());
@@ -88,6 +92,7 @@ public class MappingUtil {
     }
 
     public static UserRoomDto mapToUserRoomDto(UserRoom entity){
+        if (entity == null) return null;
         UserRoomDto dto = new UserRoomDto();
         dto.setUser(mapToUserDto(entity.getUser()));
         dto.setRoom(mapToRoomDto(entity.getRoom()));
@@ -99,6 +104,7 @@ public class MappingUtil {
     }
 
     public static UserRoom mapToUserRoomEntity(UserRoomDto dto){
+        if (dto == null) return null;
         UserRoom entity = new UserRoom();
         entity.setUser(mapToUserEntity(dto.getUser()));
         entity.setRoom(mapToRoomEntity(dto.getRoom()));

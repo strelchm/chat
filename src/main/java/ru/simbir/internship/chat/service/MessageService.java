@@ -10,5 +10,5 @@ public interface MessageService {
     MessageDto getById(UUID id);
     UUID add(MessageDto dto);
     MessageDto edit(MessageDto dto);
-    MessageDto delete(MessageDto dto);
+    void delete(UUID id);
 }

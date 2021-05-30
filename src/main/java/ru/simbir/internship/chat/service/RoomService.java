@@ -10,5 +10,5 @@ public interface RoomService {
     RoomDto getById(UUID id);
     UUID add(RoomDto dto);
     RoomDto edit(RoomDto dto);
-    RoomDto delete(RoomDto dto);
+    void delete(UUID id);
 }

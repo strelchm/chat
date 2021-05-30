@@ -10,6 +10,6 @@ public interface UserService {
     UserDto getById(UUID id);
     UUID add(UserDto dto);
     UserDto edit(UserDto dto);
-    UserDto delete(UserDto dto);
+    void delete(UUID id);
 
 }

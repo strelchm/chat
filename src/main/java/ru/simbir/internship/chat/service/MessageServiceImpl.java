@@ -3,7 +3,6 @@ package ru.simbir.internship.chat.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.simbir.internship.chat.dto.MessageDto;
-import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.repository.MessageRepository;
 import ru.simbir.internship.chat.util.MappingUtil;
 
@@ -28,7 +27,7 @@ public class MessageServiceImpl implements MessageService{
 
     @Override
     public MessageDto getById(UUID id){
-        return MappingUtil.mapToMessageDto(repository.findById(id).orElseThrow(() -> new NotFoundException("Message with id " + id + " not found")));
+        return MappingUtil.mapToMessageDto(repository.findById(id).orElseThrow(IllegalArgumentException::new));
     }
 
     @Override
@@ -38,16 +37,15 @@ public class MessageServiceImpl implements MessageService{
 
     @Override
     public MessageDto edit(MessageDto dto){
-        repository.findById(dto.getId()).orElseThrow(() -> new NotFoundException("Message with id " + dto.getId() + " not found"));
+        repository.findById(dto.getId()).orElseThrow(IllegalArgumentException::new);
         repository.save(MappingUtil.mapToMessageEntity(dto));
         return dto;
     }
 
     @Override
-    public MessageDto delete(MessageDto dto){
-        repository.findById(dto.getId()).orElseThrow(() -> new NotFoundException("Message with id " + dto.getId() + " not found"));
-        repository.delete(MappingUtil.mapToMessageEntity(dto));
-        return dto;
+    public void delete(UUID id){
+        repository.findById(id).orElseThrow(IllegalArgumentException::new);
+        repository.deleteById(id);
     }
 
 }
