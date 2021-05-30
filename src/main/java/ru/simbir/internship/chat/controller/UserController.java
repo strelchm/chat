@@ -2,6 +2,7 @@ package ru.simbir.internship.chat.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.simbir.internship.chat.domain.UserAppRole;
@@ -18,11 +19,13 @@ import java.util.*;
 @Validated
 public class UserController extends ParentController {
     private final UserService userService;
+    private final PasswordEncoder encoder;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, PasswordEncoder encoder) {
         super(userService);
         this.userService = userService;
+        this.encoder = encoder;
     }
 
     @GetMapping
@@ -39,6 +42,7 @@ public class UserController extends ParentController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public IdDto createUser(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody UserDto dto) {
         dto.setStatus(UserStatus.ACTIVE);
+        dto.setPassword(encoder.encode(dto.getPassword()));
         Set<UserAppRole> roles = new HashSet<>();
         roles.add(UserAppRole.CLIENT);
         dto.setUserAppRoles(roles);

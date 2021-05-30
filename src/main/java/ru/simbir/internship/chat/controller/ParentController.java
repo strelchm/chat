@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.ServletWebRequest;
 import ru.simbir.internship.chat.dto.UserContext;
 import ru.simbir.internship.chat.dto.UserDto;
+import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.service.UserService;
 
@@ -31,6 +32,16 @@ public class ParentController {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public HashMap<String, String> handleNotFoundExceptions(Exception ex) {
+        HashMap<String, String> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        response.put("error", ex.getClass().getSimpleName());
+        ex.printStackTrace();
+        return response;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public HashMap<String, String> handleAccessDeniedExceptions(Exception ex) {
         HashMap<String, String> response = new HashMap<>();
         response.put("message", ex.getMessage());
         response.put("error", ex.getClass().getSimpleName());
