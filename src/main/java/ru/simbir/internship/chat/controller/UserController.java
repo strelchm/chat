@@ -68,8 +68,7 @@ public class UserController extends ParentController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public UserDto deleteUser(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) { // todo - void return type
-        UserDto messageDto = userService.getById(id); // todo
-        return userService.delete(messageDto);
+    public void deleteUser(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) {
+        userService.delete(id);
     }
 }

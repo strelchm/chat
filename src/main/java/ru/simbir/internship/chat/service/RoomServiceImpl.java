@@ -3,6 +3,7 @@ package ru.simbir.internship.chat.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.simbir.internship.chat.dto.RoomDto;
+import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.repository.RoomRepository;
 import ru.simbir.internship.chat.util.MappingUtil;
 
@@ -27,7 +28,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RoomDto getById(UUID id){
-        return MappingUtil.mapToRoomDto(repository.findById(id).orElseThrow(IllegalArgumentException::new));
+        return MappingUtil.mapToRoomDto(repository.findById(id).orElseThrow(() -> new NotFoundException("Room with id " + id + " not found")));
     }
 
     @Override
@@ -37,14 +38,14 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RoomDto edit(RoomDto dto){
-        repository.findById(dto.getId()).orElseThrow(IllegalArgumentException::new);
+        repository.findById(dto.getId()).orElseThrow(() -> new NotFoundException("Room with id " + dto.getId() + " not found"));
         repository.save(MappingUtil.mapToRoomEntity(dto));
         return dto;
     }
 
     @Override
     public void delete(UUID id){
-        repository.findById(id).orElseThrow(IllegalArgumentException::new);
+        repository.findById(id).orElseThrow(() -> new NotFoundException("Room with id " + id + " not found"));
         repository.deleteById(id);
     }
 }

@@ -63,8 +63,7 @@ public class MessageController extends ParentController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public MessageDto deleteMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) { // todo - void return type
-        MessageDto messageDto = messageService.getById(id); // todo
-        return messageService.delete(messageDto);
+    public void deleteMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) {
+        messageService.delete(id);
     }
 }

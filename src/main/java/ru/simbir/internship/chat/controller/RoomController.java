@@ -66,8 +66,7 @@ public class RoomController extends ParentController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public RoomDto deleteRoom(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) { // todo - void return type
-        RoomDto messageDto = roomService.getById(id); // todo
-        return roomService.delete(messageDto);
+    public void deleteRoom(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) {
+        roomService.delete(id);
     }
 }
