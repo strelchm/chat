@@ -3,6 +3,7 @@ package ru.simbir.internship.chat.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.simbir.internship.chat.dto.UserDto;
+import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.repository.UserRepository;
 import ru.simbir.internship.chat.util.MappingUtil;
 
@@ -26,7 +27,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDto getById(UUID id){
-        return MappingUtil.mapToUserDto(repository.findById(id).orElseThrow(IllegalArgumentException::new));
+        return MappingUtil.mapToUserDto(repository.findById(id).orElseThrow(() -> new NotFoundException("User with id " + id + " not found")));
     }
 
     @Override
@@ -36,14 +37,14 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDto edit(UserDto dto){
-        repository.findById(dto.getId()).orElseThrow(IllegalArgumentException::new);
+        repository.findById(dto.getId()).orElseThrow(() -> new NotFoundException("User with id " + dto.getId() + " not found"));
         repository.save(MappingUtil.mapToUserEntity(dto));
         return dto;
     }
 
     @Override
     public void delete(UUID id){
-        repository.findById(id).orElseThrow(IllegalArgumentException::new);
+        repository.findById(id).orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
         repository.deleteById(id);
     }
 }

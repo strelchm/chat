@@ -18,8 +18,12 @@ public class MappingUtil {
         MessageDto dto = new MessageDto();
         dto.setId(entity.getId());
         dto.setText(entity.getText());
-        dto.setUser(mapToUserDto(entity.getUser()));
-        dto.setRoom(mapToRoomDto(entity.getRoom()));
+        if (entity.getUser() != null) {
+            dto.setUser(mapToUserDto(entity.getUser()));
+        }
+        if (entity.getUser() != null) {
+            dto.setRoom(mapToRoomDto(entity.getRoom()));
+        }
         dto.setCreated(entity.getCreated());
         dto.setUpdated(entity.getUpdated());
         return dto;
@@ -30,74 +34,94 @@ public class MappingUtil {
         Message entity = new Message();
         entity.setId(dto.getId());
         entity.setText(dto.getText());
-        entity.setUser(mapToUserEntity(dto.getUser()));
-        entity.setRoom(mapToRoomEntity(dto.getRoom()));
-        entity.setCreated(dto.getCreated());
-        entity.setUpdated(dto.getUpdated());
+        if (dto.getUser() != null) {
+            entity.setUser(mapToUserEntity(dto.getUser()));
+        }
+        if (dto.getRoom() != null) {
+            entity.setRoom(mapToRoomEntity(dto.getRoom()));
+        }
         return entity;
     }
 
-    public static RoomDto mapToRoomDto(Room entity){
+    public static RoomDto mapToRoomDto(Room entity) {
         if (entity == null) return null;
         RoomDto dto = new RoomDto();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
-        dto.setMessages(entity.getMessages().stream().map(MappingUtil::mapToMessageDto).collect(Collectors.toSet()));
-        dto.setUserRooms(entity.getUserRooms().stream().map(MappingUtil::mapToUserRoomDto).collect(Collectors.toSet()));
+        if (entity.getMessages() != null) {
+            dto.setMessages(entity.getMessages().stream().map(MappingUtil::mapToMessageDto).collect(Collectors.toSet()));
+        }
+        if (entity.getUserRooms() != null) {
+            dto.setUserRooms(entity.getUserRooms().stream().map(MappingUtil::mapToUserRoomDto).collect(Collectors.toSet()));
+        }
         dto.setType(entity.getType());
         dto.setCreated(entity.getCreated());
         dto.setUpdated(entity.getUpdated());
         return dto;
     }
 
-    public static Room mapToRoomEntity(RoomDto dto){
+    public static Room mapToRoomEntity(RoomDto dto) {
         if (dto == null) return null;
         Room entity = new Room();
         entity.setId(dto.getId());
         entity.setName(dto.getName());
-        entity.setMessages(dto.getMessages().stream().map(MappingUtil::mapToMessageEntity).collect(Collectors.toSet()));
-        entity.setUserRooms(dto.getUserRooms().stream().map(MappingUtil::mapToUserRoomEntity).collect(Collectors.toSet()));
+        if (dto.getMessages() != null) {
+            entity.setMessages(dto.getMessages().stream().map(MappingUtil::mapToMessageEntity).collect(Collectors.toSet()));
+        }
+        if (dto.getUserRooms() != null) {
+            entity.setUserRooms(dto.getUserRooms().stream().map(MappingUtil::mapToUserRoomEntity).collect(Collectors.toSet()));
+        }
         entity.setType(dto.getType());
-        entity.setCreated(dto.getCreated());
-        entity.setUpdated(dto.getUpdated());
         return entity;
     }
 
-    public static UserDto mapToUserDto(User entity){
+    public static UserDto mapToUserDto(User entity) {
         if (entity == null) return null;
         UserDto dto = new UserDto();
         dto.setId(entity.getId());
         dto.setLogin(entity.getLogin());
         dto.setPassword(entity.getPassword());
         dto.setStatus(entity.getStatus());
-        dto.setMessages(entity.getMessages().stream().map(MappingUtil::mapToMessageDto).collect(Collectors.toSet()));
-        dto.setUserRooms(entity.getUserRooms().stream().map(MappingUtil::mapToUserRoomDto).collect(Collectors.toSet()));
+        if (entity.getMessages() != null) {
+            dto.setMessages(entity.getMessages().stream().map(MappingUtil::mapToMessageDto).collect(Collectors.toSet()));
+        }
+        if (entity.getUserRooms() != null) {
+            dto.setUserRooms(entity.getUserRooms().stream().map(MappingUtil::mapToUserRoomDto).collect(Collectors.toSet()));
+        }
         dto.setUserAppRoles(entity.getUserAppRoles());
         dto.setCreated(entity.getCreated());
         dto.setUpdated(entity.getUpdated());
         return dto;
     }
 
-    public static User mapToUserEntity(UserDto dto){
+    public static User mapToUserEntity(UserDto dto) {
         if (dto == null) return null;
         User entity = new User();
         entity.setId(dto.getId());
         entity.setLogin(dto.getLogin());
         entity.setPassword(dto.getPassword());
         entity.setStatus(dto.getStatus());
-        entity.setMessages(dto.getMessages().stream().map(MappingUtil::mapToMessageEntity).collect(Collectors.toSet()));
-        entity.setUserRooms(dto.getUserRooms().stream().map(MappingUtil::mapToUserRoomEntity).collect(Collectors.toSet()));
-        entity.setUserAppRoles(dto.getUserAppRoles());
-        entity.setCreated(dto.getCreated());
-        entity.setUpdated(dto.getUpdated());
+        if (dto.getMessages() != null) {
+            entity.setMessages(dto.getMessages().stream().map(MappingUtil::mapToMessageEntity).collect(Collectors.toSet()));
+        }
+        if (dto.getUserRooms() != null) {
+            entity.setUserRooms(dto.getUserRooms().stream().map(MappingUtil::mapToUserRoomEntity).collect(Collectors.toSet()));
+        }
+        if (dto.getUserAppRoles() != null) {
+            entity.setUserAppRoles(dto.getUserAppRoles());
+        }
         return entity;
     }
 
-    public static UserRoomDto mapToUserRoomDto(UserRoom entity){
+    public static UserRoomDto mapToUserRoomDto(UserRoom entity) {
         if (entity == null) return null;
         UserRoomDto dto = new UserRoomDto();
-        dto.setUser(mapToUserDto(entity.getUser()));
-        dto.setRoom(mapToRoomDto(entity.getRoom()));
+        if (entity.getUser() != null) {
+            dto.setUser(mapToUserDto(entity.getUser()));
+        }
+        if (entity.getRoom() != null) {
+            dto.setRoom(mapToRoomDto(entity.getRoom()));
+        }
         dto.setUserRoomRoles(entity.getUserRoomRoles());
         dto.setBlockedTime(entity.getBlockedTime());
         dto.setCreated(entity.getCreated());
@@ -105,15 +129,16 @@ public class MappingUtil {
         return dto;
     }
 
-    public static UserRoom mapToUserRoomEntity(UserRoomDto dto){
+    public static UserRoom mapToUserRoomEntity(UserRoomDto dto) {
         if (dto == null) return null;
         UserRoom entity = new UserRoom();
-        entity.setUser(mapToUserEntity(dto.getUser()));
-        entity.setRoom(mapToRoomEntity(dto.getRoom()));
+        if (dto.getUser() != null) {
+            entity.setUser(mapToUserEntity(dto.getUser()));
+        }
+        if (dto.getRoom() != null) {
+            entity.setRoom(mapToRoomEntity(dto.getRoom()));
+        }
         entity.setUserRoomRoles(dto.getUserRoomRoles());
-        entity.setBlockedTime(dto.getBlockedTime());
-        entity.setCreated(dto.getCreated());
-        entity.setUpdated(dto.getUpdated());
         return entity;
     }
 }
