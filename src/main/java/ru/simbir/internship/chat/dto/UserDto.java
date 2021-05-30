@@ -19,7 +19,7 @@ public class UserDto {
     private String password;
     private UserStatus status;
     private Set<MessageDto> messages;
-    private Set<RoomDto> rooms;
+    private Set<UserRoomDto> userRooms;
     private Set<UserAppRole> userAppRoles;
     private Date created;
     private Date updated;

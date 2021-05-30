@@ -5,12 +5,13 @@ spring:
     username: chatuser
     password: 12345
   jpa:
-    show-sql: false
+    show-sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL9Dialect
-    open-in-view: false
+    open-in-view: true
   liquibase:
-    enabled: false
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml

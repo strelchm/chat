@@ -3,20 +3,22 @@ package ru.simbir.internship.chat.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.simbir.internship.chat.domain.Room;
-import ru.simbir.internship.chat.domain.User;
+import ru.simbir.internship.chat.domain.UserRoomRole;
 
+
+import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.UUID;
+import java.util.Set;
+
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageDto {
-    private UUID id;
-    private String text;
+public class UserRoomDto {
     private UserDto user;
     private RoomDto room;
+    private Set<UserRoomRole> userRoomRoles;
+    private LocalDateTime blockedTime;
     private Date created;
     private Date updated;
 }
