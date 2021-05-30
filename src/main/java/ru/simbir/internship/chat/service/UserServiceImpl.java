@@ -2,6 +2,7 @@ package ru.simbir.internship.chat.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.repository.UserRepository;

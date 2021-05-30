@@ -81,11 +81,9 @@ public class MappingUtil {
         entity.setLogin(dto.getLogin());
         entity.setPassword(dto.getPassword());
         entity.setStatus(dto.getStatus());
-        entity.setMessages(dto.getMessages().stream().map(MappingUtil::mapToMessageEntity).collect(Collectors.toSet()));
-        entity.setUserRooms(dto.getUserRooms().stream().map(MappingUtil::mapToUserRoomEntity).collect(Collectors.toSet()));
-        entity.setUserAppRoles(dto.getUserAppRoles());
-        entity.setCreated(dto.getCreated());
-        entity.setUpdated(dto.getUpdated());
+//        entity.setMessages(dto.getMessages().stream().map(MappingUtil::mapToMessageEntity).collect(Collectors.toSet()));
+//        entity.setUserRooms(dto.getUserRooms().stream().map(MappingUtil::mapToUserRoomEntity).collect(Collectors.toSet()));
+//        entity.setUserAppRoles(dto.getUserAppRoles());
         return entity;
     }
 

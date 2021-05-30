@@ -1,12 +1,13 @@
 package ru.simbir.internship.chat.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 import ru.simbir.internship.chat.domain.User;
+import ru.simbir.internship.chat.domain.UserAppRole;
 import ru.simbir.internship.chat.dto.UserDto;
 
 import java.security.Key;
@@ -15,6 +16,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 @Service
 public class JwtTokenServiceImpl implements JwtTokenService {
@@ -26,6 +28,8 @@ public class JwtTokenServiceImpl implements JwtTokenService {
     private static final String LOGIN_CLAIM_NAME = "login";
     private static final String ROLE_CLAIM_NAME = "role";
 
+    private static final Logger logger = Logger.getLogger(JwtTokenServiceImpl.class.getName());
+
     @Override
     public String generateToken(User user) {
         Instant expirationTime = Instant.now().plus(EXPIRATION_HOURS, ChronoUnit.HOURS);
@@ -33,15 +37,18 @@ public class JwtTokenServiceImpl implements JwtTokenService {
 
         Key key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
 
-        String compactTokenString = Jwts.builder()
-                .claim(ID_CLAIM_NAME, user.getId())
-                .claim(LOGIN_CLAIM_NAME, user.getLogin())
-                .claim(ROLE_CLAIM_NAME, user.getUserAppRoles())
-                .setExpiration(expirationDate)
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+        JwtBuilder compactTokenString = Jwts.builder()
+                .claim(ID_CLAIM_NAME, user.getId().toString())
+                .claim(LOGIN_CLAIM_NAME, user.getLogin());
 
-        return TOKEN_PREFIX + compactTokenString;
+        try {
+            compactTokenString.claim(ROLE_CLAIM_NAME, new ObjectMapper().writeValueAsString(user.getUserAppRoles()));
+        } catch (JsonProcessingException e) {
+            logger.severe(e.getMessage());
+            e.printStackTrace();
+        }
+
+        return compactTokenString.setExpiration(expirationDate).signWith(key, SignatureAlgorithm.HS256).compact();
     }
 
     @Override
@@ -54,9 +61,18 @@ public class JwtTokenServiceImpl implements JwtTokenService {
                 .parseClaimsJws(token);
 
         UserDto userDto = new UserDto();
-        userDto.setId(jwsClaims.getBody().get(ID_CLAIM_NAME, UUID.class));
+        userDto.setId(UUID.fromString(jwsClaims.getBody().get(ID_CLAIM_NAME, String.class)));
         userDto.setLogin(jwsClaims.getBody().get(LOGIN_CLAIM_NAME, String.class));
-        userDto.setUserAppRoles(jwsClaims.getBody().get(ROLE_CLAIM_NAME, Set.class));
+
+        try {
+            userDto.setUserAppRoles(
+                    new ObjectMapper().readValue(jwsClaims.getBody().get(ROLE_CLAIM_NAME, String.class),
+                    new TypeReference<Set<UserAppRole>>() {})
+            );
+        } catch (JsonProcessingException e) {
+            logger.severe(e.getMessage());
+            e.printStackTrace();
+        }
 
         return userDto;
     }
