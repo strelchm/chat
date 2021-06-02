@@ -18,13 +18,11 @@ import java.util.UUID;
 @Validated
 public class RoomController extends ParentController {
     private final RoomService roomService;
-    private final UserService userService;
 
     @Autowired
     public RoomController(RoomService roomService, UserService userService) {
         super(userService);
         this.roomService = roomService;
-        this.userService = userService;
     }
 
     @GetMapping

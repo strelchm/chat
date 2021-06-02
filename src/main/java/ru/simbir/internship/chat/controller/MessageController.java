@@ -14,17 +14,15 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/messages")
+@RequestMapping("/api")
 @Validated
 public class MessageController extends ParentController {
     private final MessageService messageService;
-    private final UserService userService;
 
     @Autowired
     public MessageController(MessageService messageService, UserService userService) {
         super(userService);
         this.messageService = messageService;
-        this.userService = userService;
     }
 
     @GetMapping
@@ -32,24 +30,24 @@ public class MessageController extends ParentController {
         return messageService.getAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/room/{roomId}/messages/{id}")
     public MessageDto getMessageById(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) {
         return messageService.getById(id);
     }
 
-    @PostMapping
+    @PostMapping("/room/{roomId}/messages")
     @ResponseStatus(value = HttpStatus.CREATED)
     public IdDto createMessage(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto) {
         return new IdDto(messageService.add(dto));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/room/{roomId}/messages/{id}")
     public MessageDto updateMessage(@NotNull(message = NULL_UPDATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto) {
         return messageService.edit(dto);
     }
 
     @Deprecated // todo not needed here
-    @PatchMapping("/{id}")
+    @PatchMapping("/room/{roomId}/messages/{id}")
     public MessageDto patchMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                                    @NotNull(message = NULL_PATCH_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto) {
         MessageDto messageDto = messageService.getById(id);
@@ -61,7 +59,7 @@ public class MessageController extends ParentController {
         return messageService.edit(messageDto);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/room/{roomId}/messages/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) {
         messageService.delete(id);
