@@ -9,6 +9,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import ru.simbir.internship.chat.dto.UserContext;
 import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.exception.AccessDeniedException;
+import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.service.UserService;
 
@@ -42,6 +43,16 @@ public class ParentController {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public HashMap<String, String> handleAccessDeniedExceptions(Exception ex) {
+        HashMap<String, String> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        response.put("error", ex.getClass().getSimpleName());
+        ex.printStackTrace();
+        return response;
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public HashMap<String, String> handleBadRequestExceptions(Exception ex) {
         HashMap<String, String> response = new HashMap<>();
         response.put("message", ex.getMessage());
         response.put("error", ex.getClass().getSimpleName());

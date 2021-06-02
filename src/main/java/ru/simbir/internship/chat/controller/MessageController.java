@@ -2,10 +2,14 @@ package ru.simbir.internship.chat.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.simbir.internship.chat.dto.IdDto;
+import ru.simbir.internship.chat.dto.*;
 import ru.simbir.internship.chat.dto.MessageDto;
+import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.service.MessageService;
 import ru.simbir.internship.chat.service.UserService;
 
@@ -16,6 +20,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api")
 @Validated
+@PreAuthorize("hasAnyRole()")
 public class MessageController extends ParentController {
     private final MessageService messageService;
 
@@ -25,43 +30,56 @@ public class MessageController extends ParentController {
         this.messageService = messageService;
     }
 
-    @GetMapping
-    public List<MessageDto> getAllMessages() {
-        return messageService.getAll();
+
+    @GetMapping("/rooms/{roomId}/messages")
+    public List<MessageDto> getAllMessages(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
+                                           @ModelAttribute(USER_CONTEXT) UserContext userContext) {
+        return messageService.getAll(roomId, userContext.getUser().get());
     }
 
     @GetMapping("/rooms/{roomId}/messages/{id}")
-    public MessageDto getMessageById(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) {
-        return messageService.getById(id);
+    public MessageDto getMessageById(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
+                                     @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
+                                     @ModelAttribute(USER_CONTEXT) UserContext userContext) {
+        return messageService.getById(id, roomId, userContext.getUser().get());
     }
 
     @PostMapping("/rooms/{roomId}/messages")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public IdDto createMessage(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto) {
-        return new IdDto(messageService.add(dto));
+    public IdDto createMessage(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto,
+                               @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
+                               @ModelAttribute(USER_CONTEXT) UserContext userContext) {
+        return new IdDto(messageService.add(dto, roomId, userContext.getUser().get()));
     }
 
     @PutMapping("/rooms/{roomId}/messages/{id}")
-    public MessageDto updateMessage(@NotNull(message = NULL_UPDATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto) {
-        return messageService.edit(dto);
+    public MessageDto updateMessage(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto,
+                                    @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
+                                    @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
+                                    @ModelAttribute(USER_CONTEXT) UserContext userContext) {
+        if (id != dto.getId()) throw new BadRequestException();
+        return messageService.edit(dto, roomId, userContext.getUser().get());
     }
 
     @Deprecated // todo not needed here
     @PatchMapping("/rooms/{roomId}/messages/{id}")
     public MessageDto patchMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
-                                   @NotNull(message = NULL_PATCH_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto) {
-        MessageDto messageDto = messageService.getById(id);
-
+                                   @NotNull(message = NULL_PATCH_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto,
+                                   @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
+                                   @ModelAttribute(USER_CONTEXT) UserContext userContext) {
+        if (id != dto.getId()) throw new BadRequestException();
+        MessageDto messageDto = messageService.getById(id, roomId, userContext.getUser().get());
         if (!messageDto.getText().equals(dto.getText())) {
             messageDto.setText(dto.getText());
         }
-
-        return messageService.edit(messageDto);
+        return messageService.edit(messageDto, roomId, userContext.getUser().get());
     }
 
     @DeleteMapping("/rooms/{roomId}/messages/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) {
-        messageService.delete(id);
+    public void deleteMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
+                              @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
+                              @ModelAttribute(USER_CONTEXT) UserContext userContext) {
+        messageService.delete(id, roomId, userContext.getUser().get());
     }
 }
