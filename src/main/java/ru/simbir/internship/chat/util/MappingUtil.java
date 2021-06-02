@@ -122,7 +122,7 @@ public class MappingUtil {
         if (entity.getRoom() != null) {
             dto.setRoom(mapToRoomDto(entity.getRoom()));
         }
-        dto.setUserRoomRoles(entity.getUserRoomRoles());
+        dto.setUserRoomRole(entity.getUserRoomRole());
         dto.setBlockedTime(entity.getBlockedTime());
         dto.setCreated(entity.getCreated());
         dto.setUpdated(entity.getUpdated());
@@ -138,7 +138,7 @@ public class MappingUtil {
         if (dto.getRoom() != null) {
             entity.setRoom(mapToRoomEntity(dto.getRoom()));
         }
-        entity.setUserRoomRoles(dto.getUserRoomRoles());
+        entity.setUserRoomRole(dto.getUserRoomRole());
         return entity;
     }
 }

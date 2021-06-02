@@ -17,7 +17,7 @@ import java.util.Set;
 public class UserRoomDto {
     private UserDto user;
     private RoomDto room;
-    private Set<UserRoomRole> userRoomRoles;
+    private UserRoomRole userRoomRole;
     private LocalDateTime blockedTime;
     private Date created;
     private Date updated;
