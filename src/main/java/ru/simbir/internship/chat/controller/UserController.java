@@ -19,13 +19,11 @@ import java.util.*;
 @Validated
 public class UserController extends ParentController {
     private final UserService userService;
-    private final PasswordEncoder encoder;
 
     @Autowired
-    public UserController(UserService userService, PasswordEncoder encoder) {
+    public UserController(UserService userService) {
         super(userService);
         this.userService = userService;
-        this.encoder = encoder;
     }
 
     @GetMapping
@@ -41,11 +39,6 @@ public class UserController extends ParentController {
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
     public IdDto createUser(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody UserDto dto) {
-        dto.setStatus(UserStatus.ACTIVE);
-        dto.setPassword(encoder.encode(dto.getPassword()));
-        Set<UserAppRole> roles = new HashSet<>();
-        roles.add(UserAppRole.CLIENT);
-        dto.setUserAppRoles(roles);
         return new IdDto(userService.add(dto));
     }
 
