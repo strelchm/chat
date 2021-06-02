@@ -30,24 +30,24 @@ public class MessageController extends ParentController {
         return messageService.getAll();
     }
 
-    @GetMapping("/room/{roomId}/messages/{id}")
+    @GetMapping("/rooms/{roomId}/messages/{id}")
     public MessageDto getMessageById(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) {
         return messageService.getById(id);
     }
 
-    @PostMapping("/room/{roomId}/messages")
+    @PostMapping("/rooms/{roomId}/messages")
     @ResponseStatus(value = HttpStatus.CREATED)
     public IdDto createMessage(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto) {
         return new IdDto(messageService.add(dto));
     }
 
-    @PutMapping("/room/{roomId}/messages/{id}")
+    @PutMapping("/rooms/{roomId}/messages/{id}")
     public MessageDto updateMessage(@NotNull(message = NULL_UPDATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto) {
         return messageService.edit(dto);
     }
 
     @Deprecated // todo not needed here
-    @PatchMapping("/room/{roomId}/messages/{id}")
+    @PatchMapping("/rooms/{roomId}/messages/{id}")
     public MessageDto patchMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                                    @NotNull(message = NULL_PATCH_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto) {
         MessageDto messageDto = messageService.getById(id);
@@ -59,7 +59,7 @@ public class MessageController extends ParentController {
         return messageService.edit(messageDto);
     }
 
-    @DeleteMapping("/room/{roomId}/messages/{id}")
+    @DeleteMapping("/rooms/{roomId}/messages/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id) {
         messageService.delete(id);
