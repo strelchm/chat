@@ -10,5 +10,5 @@ import java.util.UUID;
 
 @Repository
 public interface RoomRepository extends JpaRepository<Room, UUID> {
-    Optional<Room> findByUserRooms_User(UUID userId, UUID roomId);
+   // Optional<Room> findByUserRooms_User(UUID userId, UUID roomId);
 }
