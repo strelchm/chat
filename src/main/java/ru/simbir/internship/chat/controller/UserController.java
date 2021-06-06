@@ -20,7 +20,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/users")
 @Validated
-@PreAuthorize("hasAnyRole()")
+//@PreAuthorize("hasAnyRole()") todo - держать открытой регистрацию
 public class UserController extends ParentController {
     private final UserService userService;
 

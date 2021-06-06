@@ -14,7 +14,7 @@ import javax.validation.constraints.NotBlank;
  */
 @Entity
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"room", "user"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Message extends ParentEntity {

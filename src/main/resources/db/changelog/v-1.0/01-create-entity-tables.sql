@@ -1,8 +1,8 @@
 create table message (id uuid not null, created timestamp, updated timestamp, text varchar(2048), room_id uuid, user_id uuid, primary key (id));
 create table room (id uuid not null, created timestamp, updated timestamp, name varchar(50), type varchar(255), primary key (id));
 create table user_user_app_roles (user_id uuid not null, user_app_roles int4);
-create table user_room (room_id uuid not null, user_id uuid not null, blocked_time timestamp, created timestamp, updated timestamp, user_room_role int4, primary key (room_id, user_id));
-create table users (id uuid not null, created timestamp, updated timestamp, login varchar(50), password varchar(100), status varchar(255), primary key (id));
+create table user_room (room_id uuid not null, user_id uuid not null, blocked_time timestamp, created timestamp, updated timestamp, user_room_role varchar(255), primary key (room_id, user_id));
+create table users (id uuid not null, created timestamp, updated timestamp, login varchar(50), password varchar(100), user_app_role varchar(255), status varchar(255), primary key (id));
 alter table users add constraint UK_ow0gan20590jrb00upg3va2fn unique (login);
 alter table message add constraint FKl1kg5a2471cv6pkew0gdgjrmo foreign key (room_id) references room;
 alter table message add constraint FKpdrb79dg3bgym7pydlf9k3p1n foreign key (user_id) references users;

@@ -1,6 +1,8 @@
-package ru.simbir.internship.chat.service;
+package ru.simbir.internship.chat.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.simbir.internship.chat.domain.Message;
 import ru.simbir.internship.chat.domain.UserRoomRole;
@@ -9,6 +11,8 @@ import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.repository.MessageRepository;
 import ru.simbir.internship.chat.repository.UserRoomRepository;
+import ru.simbir.internship.chat.service.CheckRoomAccessService;
+import ru.simbir.internship.chat.service.MessageService;
 import ru.simbir.internship.chat.util.MappingUtil;
 
 import java.util.List;
@@ -26,9 +30,9 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
     }
 
     @Override
-    public List<MessageDto> getAll(UUID chatRoomId, UserDto userDto) { // todo Pageable / Criteria??
+    public Page<MessageDto> getAll(Pageable pageable, UUID chatRoomId, UserDto userDto) { // todo Pageable / Criteria??
         checkAccess(userDto, chatRoomId);
-        return messageRepository.findAll().stream().map(MappingUtil::mapToMessageDto).collect(Collectors.toList());
+        return messageRepository.findAll(pageable).map(MappingUtil::mapToMessageDto);
     }
 
     @Override

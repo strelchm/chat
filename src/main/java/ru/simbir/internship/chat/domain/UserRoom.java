@@ -1,9 +1,6 @@
 package ru.simbir.internship.chat.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -21,13 +18,30 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"user", "room"})
 public class UserRoom {
     @Embeddable
-    private static class Key implements Serializable {
+    public static class Key implements Serializable {
         @Column(name = "user_id")
         private UUID userId;
         @Column(name = "room_id")
         private UUID roomId;
+
+        public UUID getUserId() {
+            return userId;
+        }
+
+        public void setUserId(UUID userId) {
+            this.userId = userId;
+        }
+
+        public UUID getRoomId() {
+            return roomId;
+        }
+
+        public void setRoomId(UUID roomId) {
+            this.roomId = roomId;
+        }
     }
 
     @EmbeddedId
@@ -41,8 +55,7 @@ public class UserRoom {
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
-//    @ElementCollection
-//    private Set<UserRoomRole> userRoomRoles; // роли в чате подразумевают отдельные разграниченные права, разделять права при пересечении ролей геморно
+    @Enumerated(EnumType.STRING)
     private UserRoomRole userRoomRole;
 
     private LocalDateTime blockedTime;
