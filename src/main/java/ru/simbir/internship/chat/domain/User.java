@@ -32,8 +32,8 @@ public class User extends ParentEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @ElementCollection
-    private Set<UserAppRole> userAppRoles;
+    @Enumerated(EnumType.STRING)
+    private UserAppRole userAppRole;
 
     @OneToMany(mappedBy = "user")
     private Set<UserRoom> userRooms;

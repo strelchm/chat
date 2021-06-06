@@ -19,7 +19,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/rooms")
 @Validated
-@PreAuthorize("hasAnyRole()")
+@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")
 public class RoomController extends ParentController {
     private final RoomService roomService;
 

@@ -1,6 +1,10 @@
 package ru.simbir.internship.chat.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -20,7 +24,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api")
 @Validated
-@PreAuthorize("hasAnyRole()")
+@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")
 public class MessageController extends ParentController {
     private final MessageService messageService;
 
@@ -32,9 +36,10 @@ public class MessageController extends ParentController {
 
 
     @GetMapping("/rooms/{roomId}/messages")
-    public List<MessageDto> getAllMessages(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
-                                           @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        return messageService.getAll(roomId, userContext.getUser().get());
+    public Page<MessageDto> getAllMessages(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
+                                           @ModelAttribute(USER_CONTEXT) UserContext userContext,
+                                           @PageableDefault(size = DEFAULT_PAGE_SIZE, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        return messageService.getAll(pageable, roomId, userContext.getUser().get());
     }
 
     @GetMapping("/rooms/{roomId}/messages/{id}")

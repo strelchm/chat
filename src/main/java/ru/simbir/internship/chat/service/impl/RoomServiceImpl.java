@@ -1,10 +1,9 @@
-package ru.simbir.internship.chat.service;
+package ru.simbir.internship.chat.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import ru.simbir.internship.chat.domain.Room;
-import ru.simbir.internship.chat.domain.User;
 import ru.simbir.internship.chat.domain.UserRoom;
 import ru.simbir.internship.chat.domain.UserRoomRole;
 import ru.simbir.internship.chat.dto.RoomDto;
@@ -14,6 +13,9 @@ import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.repository.RoomRepository;
 import ru.simbir.internship.chat.repository.UserRoomRepository;
+import ru.simbir.internship.chat.service.CheckRoomAccessService;
+import ru.simbir.internship.chat.service.RoomService;
+import ru.simbir.internship.chat.service.UserService;
 import ru.simbir.internship.chat.util.MappingUtil;
 
 import java.util.List;
@@ -61,8 +63,21 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
 
     @Override
     public UUID add(RoomDto dto, UserDto userDto) {
-        checkAccess(userDto, dto.getId(), UserRoomRole.BLOCKED_USER);
-        return roomRepository.save(MappingUtil.mapToRoomEntity(dto)).getId();
+        Room room = roomRepository.save(MappingUtil.mapToRoomEntity(dto));
+
+        UserRoom userRoom = new UserRoom();
+
+        UserRoom.Key key = new UserRoom.Key();
+        key.setRoomId(room.getId());
+        key.setUserId(userDto.getId());
+
+        userRoom.setId(key);
+        userRoom.setRoom(room);
+        userRoom.setUser(userService.getUserById(userDto.getId()));
+        userRoom.setUserRoomRole(UserRoomRole.OWNER);
+        userRoomRepository.save(userRoom);
+
+        return room.getId();
     }
 
     @Override
@@ -84,6 +99,12 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
                 continue;
             } catch (AccessDeniedException ex) {
                 UserRoom userRoom = new UserRoom();
+
+                UserRoom.Key key = new UserRoom.Key();
+                key.setRoomId(roomId);
+                key.setUserId(userDto.getId());
+
+                userRoom.setId(key);
                 userRoom.setRoom(getRoomById(roomId));
                 userRoom.setUser(userService.getUserById(id));
                 userRoom.setUserRoomRole(UserRoomRole.USER);

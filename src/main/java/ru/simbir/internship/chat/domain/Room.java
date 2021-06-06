@@ -15,7 +15,7 @@ import java.util.Set;
  */
 @Entity
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"userRooms", "messages"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Room extends ParentEntity {

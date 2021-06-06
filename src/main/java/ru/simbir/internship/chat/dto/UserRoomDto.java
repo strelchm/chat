@@ -16,7 +16,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class UserRoomDto {
     private UserDto user;
-    private RoomDto room;
     private UserRoomRole userRoomRole;
     private LocalDateTime blockedTime;
     private Date created;

@@ -1,4 +1,4 @@
-package ru.simbir.internship.chat.service;
+package ru.simbir.internship.chat.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import ru.simbir.internship.chat.domain.User;
 import ru.simbir.internship.chat.domain.UserAppRole;
 import ru.simbir.internship.chat.dto.UserDto;
+import ru.simbir.internship.chat.service.JwtTokenService;
 
 import java.security.Key;
 import java.time.Instant;
@@ -42,7 +43,7 @@ public class JwtTokenServiceImpl implements JwtTokenService {
                 .claim(LOGIN_CLAIM_NAME, user.getLogin());
 
         try {
-            compactTokenString.claim(ROLE_CLAIM_NAME, new ObjectMapper().writeValueAsString(user.getUserAppRoles()));
+            compactTokenString.claim(ROLE_CLAIM_NAME, new ObjectMapper().writeValueAsString(user.getUserAppRole()));
         } catch (JsonProcessingException e) {
             logger.severe(e.getMessage());
             e.printStackTrace();
@@ -65,9 +66,9 @@ public class JwtTokenServiceImpl implements JwtTokenService {
         userDto.setLogin(jwsClaims.getBody().get(LOGIN_CLAIM_NAME, String.class));
 
         try {
-            userDto.setUserAppRoles(
+            userDto.setUserAppRole(
                     new ObjectMapper().readValue(jwsClaims.getBody().get(ROLE_CLAIM_NAME, String.class),
-                    new TypeReference<Set<UserAppRole>>() {})
+                    new TypeReference<UserAppRole>() {})
             );
         } catch (JsonProcessingException e) {
             logger.severe(e.getMessage());

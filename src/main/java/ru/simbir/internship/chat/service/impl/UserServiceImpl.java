@@ -1,4 +1,4 @@
-package ru.simbir.internship.chat.service;
+package ru.simbir.internship.chat.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -12,6 +12,7 @@ import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.repository.UserRepository;
+import ru.simbir.internship.chat.service.UserService;
 import ru.simbir.internship.chat.util.MappingUtil;
 
 import java.util.HashSet;
@@ -43,14 +44,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UUID add(UserDto dto) {
-        if (dto.getUserAppRoles().contains(UserAppRole.ADMIN)) {
+        if (dto.getUserAppRole() == null) {
+            dto.setUserAppRole(UserAppRole.CLIENT);
+        } else if(dto.getUserAppRole() == UserAppRole.ADMIN) {
             throw new BadRequestException("Can't register admin during standard registration attempt");
-        }
-
-        if (dto.getUserAppRoles() == null || dto.getUserAppRoles().isEmpty()) {
-            Set<UserAppRole> roles = new HashSet<>();
-            roles.add(UserAppRole.CLIENT);
-            dto.setUserAppRoles(roles);
         }
 
         dto.setPassword(encoder.encode(dto.getPassword()));
@@ -62,7 +59,7 @@ public class UserServiceImpl implements UserService {
     public UserDto edit(UserDto dto, UserDto userDto) {
         User user = getUserById(dto.getId());
 
-        if(!dto.getId().equals(userDto.getId()) || !user.getUserAppRoles().contains(UserAppRole.ADMIN)) { // редактировать можно только самому себя или админу
+        if(!dto.getId().equals(userDto.getId()) || user.getUserAppRole() != UserAppRole.ADMIN) { // редактировать можно только самому себя или админу
             throw new AccessDeniedException();
         }
 
@@ -74,7 +71,7 @@ public class UserServiceImpl implements UserService {
     public void delete(UUID id, UserDto userDto) {
         User user = getUserById(id);
 
-        if(!id.equals(userDto.getId()) || !user.getUserAppRoles().contains(UserAppRole.ADMIN)) { // удалить можно только самому себя или админу
+        if(!id.equals(userDto.getId()) || user.getUserAppRole() != UserAppRole.ADMIN) { // удалить можно только самому себя или админу
             throw new AccessDeniedException();
         }
 

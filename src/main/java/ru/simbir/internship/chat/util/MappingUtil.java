@@ -82,13 +82,7 @@ public class MappingUtil {
         dto.setLogin(entity.getLogin());
         dto.setPassword(entity.getPassword());
         dto.setStatus(entity.getStatus());
-        if (entity.getMessages() != null) {
-            dto.setMessages(entity.getMessages().stream().map(MappingUtil::mapToMessageDto).collect(Collectors.toSet()));
-        }
-        if (entity.getUserRooms() != null) {
-            dto.setUserRooms(entity.getUserRooms().stream().map(MappingUtil::mapToUserRoomDto).collect(Collectors.toSet()));
-        }
-        dto.setUserAppRoles(entity.getUserAppRoles());
+        dto.setUserAppRole(entity.getUserAppRole());
         dto.setCreated(entity.getCreated());
         dto.setUpdated(entity.getUpdated());
         return dto;
@@ -101,14 +95,8 @@ public class MappingUtil {
         entity.setLogin(dto.getLogin());
         entity.setPassword(dto.getPassword());
         entity.setStatus(dto.getStatus());
-        if (dto.getMessages() != null) {
-            entity.setMessages(dto.getMessages().stream().map(MappingUtil::mapToMessageEntity).collect(Collectors.toSet()));
-        }
-        if (dto.getUserRooms() != null) {
-            entity.setUserRooms(dto.getUserRooms().stream().map(MappingUtil::mapToUserRoomEntity).collect(Collectors.toSet()));
-        }
-        if (dto.getUserAppRoles() != null) {
-            entity.setUserAppRoles(dto.getUserAppRoles());
+        if (dto.getUserAppRole() != null) {
+            entity.setUserAppRole(dto.getUserAppRole());
         }
         return entity;
     }
@@ -118,9 +106,6 @@ public class MappingUtil {
         UserRoomDto dto = new UserRoomDto();
         if (entity.getUser() != null) {
             dto.setUser(mapToUserDto(entity.getUser()));
-        }
-        if (entity.getRoom() != null) {
-            dto.setRoom(mapToRoomDto(entity.getRoom()));
         }
         dto.setUserRoomRole(entity.getUserRoomRole());
         dto.setBlockedTime(entity.getBlockedTime());
@@ -134,9 +119,6 @@ public class MappingUtil {
         UserRoom entity = new UserRoom();
         if (dto.getUser() != null) {
             entity.setUser(mapToUserEntity(dto.getUser()));
-        }
-        if (dto.getRoom() != null) {
-            entity.setRoom(mapToRoomEntity(dto.getRoom()));
         }
         entity.setUserRoomRole(dto.getUserRoomRole());
         return entity;

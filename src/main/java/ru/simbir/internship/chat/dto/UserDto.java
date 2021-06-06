@@ -18,9 +18,7 @@ public class UserDto {
     private String login;
     private String password;
     private UserStatus status;
-    private Set<MessageDto> messages;
-    private Set<UserRoomDto> userRooms;
-    private Set<UserAppRole> userAppRoles;
+    private UserAppRole userAppRole;
     private Date created;
     private Date updated;
 }

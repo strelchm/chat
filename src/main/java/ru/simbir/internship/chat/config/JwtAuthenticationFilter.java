@@ -4,7 +4,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.service.JwtTokenService;
@@ -17,7 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.simbir.internship.chat.service.JwtTokenServiceImpl.TOKEN_PREFIX;
+import static ru.simbir.internship.chat.service.impl.JwtTokenServiceImpl.TOKEN_PREFIX;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenService tokenService;
@@ -53,8 +52,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-        if (userPrincipal.getUserAppRoles() != null) {
-            userPrincipal.getUserAppRoles().forEach(val -> authorities.add(new SimpleGrantedAuthority("ROLE_" + val.name())));
+        if (userPrincipal.getUserAppRole() != null) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + userPrincipal.getUserAppRole().name()));
         }
 
         return new UsernamePasswordAuthenticationToken(userPrincipal, null, authorities);
