@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface RoomService {
-    List<RoomDto> getAllForAdmin(UserDto userDto);
+    List<RoomDto> getAll(UserDto userDto);
 
-    List<RoomDto> getAllForUser(UserDto userDto);
+    List<RoomDto> getAllByUser(UserDto userDto);
 
     RoomDto getById(UUID id, UserDto userDto);
 

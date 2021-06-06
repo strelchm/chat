@@ -39,14 +39,13 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
     }
 
     @Override
-    @Secured("ROLE_ADMIN")
-    public List<RoomDto> getAllForAdmin(UserDto userDto) { // todo разделить с методом ниже, дабы закрыть секьюрной аннотацией
+    public List<RoomDto> getAll(UserDto userDto) { // todo разделить с методом ниже, дабы закрыть секьюрной аннотацией
         checkAccess(userDto, null);
         return roomRepository.findAll().stream().map(MappingUtil::mapToRoomDto).collect(Collectors.toList());
     }
 
     @Override
-    public List<RoomDto> getAllForUser(UserDto userDto) {
+    public List<RoomDto> getAllByUser(UserDto userDto) {
         List<UserRoom> userRooms = userRoomRepository.findByUser_Id(userDto.getId());
 
         if (userRooms == null) {

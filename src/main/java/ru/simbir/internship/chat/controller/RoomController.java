@@ -31,7 +31,12 @@ public class RoomController extends ParentController {
 
     @GetMapping
     public List<RoomDto> getAllRooms(@ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        return roomService.getAllForUser(userContext.getUser().get());
+        return roomService.getAll(userContext.getUser().get());
+    }
+
+    @GetMapping("/own")
+    public List<RoomDto> getAllRoomsByUser(@ModelAttribute(USER_CONTEXT) UserContext userContext) {
+        return roomService.getAllByUser(userContext.getUser().get());
     }
 
     @GetMapping("/{id}")
