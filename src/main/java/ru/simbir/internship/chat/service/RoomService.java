@@ -1,6 +1,7 @@
 package ru.simbir.internship.chat.service;
 
 import org.springframework.security.access.annotation.Secured;
+import ru.simbir.internship.chat.domain.Room;
 import ru.simbir.internship.chat.domain.UserRoom;
 import ru.simbir.internship.chat.domain.UserRoomRole;
 import ru.simbir.internship.chat.dto.RoomDto;
@@ -30,4 +31,6 @@ public interface RoomService {
     void moderatorAdd(UUID roomId, UserDto userDto, UUID moderatorId);
 
     void moderatorRemove(UUID roomId, UserDto userDto, UUID moderatorId);
+
+    Room getRoomById(UUID id);
 }

@@ -15,7 +15,6 @@ import java.util.UUID;
 public class RoomDto {
     private UUID id;
     private String name;
-    private Set<MessageDto> messages;
     private Set<UserRoomDto> userRooms;
     private RoomType type;
     private Date created;

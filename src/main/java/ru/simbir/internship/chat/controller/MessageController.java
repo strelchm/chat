@@ -6,19 +6,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.simbir.internship.chat.dto.*;
+import ru.simbir.internship.chat.dto.IdDto;
 import ru.simbir.internship.chat.dto.MessageDto;
+import ru.simbir.internship.chat.dto.UserContext;
 import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.service.MessageService;
 import ru.simbir.internship.chat.service.UserService;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -39,7 +37,7 @@ public class MessageController extends ParentController {
     public Page<MessageDto> getAllMessages(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
                                            @ModelAttribute(USER_CONTEXT) UserContext userContext,
                                            @PageableDefault(size = DEFAULT_PAGE_SIZE, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        
+
         return messageService.getAll(pageable, roomId, userContext.getUser().get());
     }
 
@@ -63,22 +61,12 @@ public class MessageController extends ParentController {
                                     @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                                     @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
                                     @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        if (!id.equals(dto.getId())) throw new BadRequestException();
-        return messageService.edit(dto, roomId, userContext.getUser().get());
-    }
-
-    @Deprecated // todo not needed here
-    @PatchMapping("/rooms/{roomId}/messages/{id}")
-    public MessageDto patchMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
-                                   @NotNull(message = NULL_PATCH_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto,
-                                   @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
-                                   @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        if (!id.equals(dto.getId())) throw new BadRequestException();
-        MessageDto messageDto = messageService.getById(id, roomId, userContext.getUser().get());
-        if (!messageDto.getText().equals(dto.getText())) {
-            messageDto.setText(dto.getText());
+        if (dto.getId() == null) {
+            dto.setId(id);
+        } else if (!id.equals(dto.getId())) {
+            throw new BadRequestException();
         }
-        return messageService.edit(messageDto, roomId, userContext.getUser().get());
+        return messageService.edit(dto, roomId, userContext.getUser().get());
     }
 
     @DeleteMapping("/rooms/{roomId}/messages/{id}")

@@ -42,19 +42,15 @@ public class UserController extends ParentController {
         return new IdDto(userService.add(dto));
     }
 
-    @PutMapping("/{id}")
-    public UserDto updateUser(@NotNull(message = NULL_UPDATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody UserDto dto,
-                              @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
-                              @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        if (!id.equals(dto.getId())) throw new BadRequestException();
-        return userService.edit(dto, userContext.getUser().get());
-    }
-
     @PatchMapping("/{id}")
     public UserDto patchUser(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                              @NotNull(message = NULL_PATCH_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody UserDto dto,
                              @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        if (!id.equals(dto.getId())) throw new BadRequestException();
+        if (dto.getId() == null) {
+            dto.setId(id);
+        } else if (!id.equals(dto.getId())) {
+            throw new BadRequestException();
+        }
         UserDto userDto = userService.getById(id);
 
         if (!userDto.getLogin().equals(dto.getLogin())) {
@@ -75,14 +71,14 @@ public class UserController extends ParentController {
         userService.delete(id, userContext.getUser().get());
     }
 
-    @PostMapping("/blocked")
+    @PostMapping("/{id}/block")
     @ResponseStatus(value = HttpStatus.OK)
-    public void blockUser(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @RequestBody UUID id,
+    public void blockUser(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                            @ModelAttribute(USER_CONTEXT) UserContext userContext) {
         userService.blockUser(id, userContext.getUser().get());
     }
 
-    @DeleteMapping("/blocked/{id}")
+    @PostMapping("/{id}/unblock")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void unblockUser(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                           @ModelAttribute(USER_CONTEXT) UserContext userContext) {
