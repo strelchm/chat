@@ -50,8 +50,7 @@ public class LoginControllerTest {
                 .andExpect(status().isOk());
     }
 
-    /*
-    @Test
+   /* @Test
     public void whenInvalidLoginThenReturn403() throws Exception {
         LoginRequestDto auth = new LoginRequestDto("client#1", "wrongPassword");
         String json = objectMapper.writeValueAsString(auth);
@@ -71,6 +70,5 @@ public class LoginControllerTest {
                 .characterEncoding("utf-8")
                 .content(json))
                 .andExpect(status().isForbidden());
-    }
-    */
+    }*/
 }
