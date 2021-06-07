@@ -2,6 +2,7 @@ package ru.simbir.internship.chat.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -73,7 +74,12 @@ public class ParentController {
 
     @ModelAttribute(USER_CONTEXT)
     public UserContext getControllerContext(ServletWebRequest webRequest, Authentication authentication) {
-        Optional<UUID> userId = Optional.ofNullable(authentication).map(auth -> (((UserDto) auth.getPrincipal()).getId()));
-        return new UserContext(userId.map(userService::getById));
+        if (authentication == null) return null;
+        if (authentication.getPrincipal() instanceof UserDto) {
+            Optional<UUID> userId = Optional.of(authentication).map(auth -> (((UserDto) auth.getPrincipal()).getId()));
+            return new UserContext(userId.map(userService::getById));
+        } else {
+            return new UserContext(userService.getUserByLogin(((User) authentication.getPrincipal()).getUsername()));
+        }
     }
 }

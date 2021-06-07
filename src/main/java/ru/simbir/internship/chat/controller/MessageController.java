@@ -63,7 +63,7 @@ public class MessageController extends ParentController {
                                     @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                                     @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
                                     @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        if (id != dto.getId()) throw new BadRequestException();
+        if (!id.equals(dto.getId())) throw new BadRequestException();
         return messageService.edit(dto, roomId, userContext.getUser().get());
     }
 
@@ -73,7 +73,7 @@ public class MessageController extends ParentController {
                                    @NotNull(message = NULL_PATCH_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto,
                                    @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
                                    @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        if (id != dto.getId()) throw new BadRequestException();
+        if (!id.equals(dto.getId())) throw new BadRequestException();
         MessageDto messageDto = messageService.getById(id, roomId, userContext.getUser().get());
         if (!messageDto.getText().equals(dto.getText())) {
             messageDto.setText(dto.getText());
