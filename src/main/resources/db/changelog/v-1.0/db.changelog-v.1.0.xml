@@ -6,13 +6,11 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
     <changeSet id="1" author="chat">
-        <sqlFile dbms="postgresql"
-                 encoding="utf8"
+        <sqlFile encoding="utf8"
                  relativeToChangelogFile="true"
                  path="01-create-entity-tables.sql"/>
         <rollback>
-            <sqlFile dbms="postgresql"
-                     encoding="utf8"
+            <sqlFile encoding="utf8"
                      relativeToChangelogFile="true"
                      path="01-drop-users-table.sql"/>
         </rollback>

@@ -2,12 +2,8 @@ package ru.simbir.internship.chat.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.simbir.internship.chat.domain.UserAppRole;
-import ru.simbir.internship.chat.domain.UserStatus;
 import ru.simbir.internship.chat.dto.IdDto;
 import ru.simbir.internship.chat.dto.UserContext;
 import ru.simbir.internship.chat.dto.UserDto;

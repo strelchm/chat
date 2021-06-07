@@ -11,7 +11,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import ru.simbir.internship.chat.dto.LoginRequestDto;
+import ru.simbir.internship.chat.exception.AccessDeniedException;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -19,8 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class LoginControllerTest {
-/*
-    final String PREFIX = "/api/login";
+    static final String PREFIX = "/api/login";
+    static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private WebApplicationContext context;
@@ -37,13 +41,8 @@ public class LoginControllerTest {
 
     @Test
     public void whenValidLoginAndPasswordThenGenerateToken() throws Exception {
-        Object auth = new Object() {
-            public final String login = "client";
-            public final String password = "client";
-        };
-        ObjectMapper objectMapper = new ObjectMapper();
+        LoginRequestDto auth = new LoginRequestDto("client#1", "client#1");
         String json = objectMapper.writeValueAsString(auth);
-
         mvc.perform(post(PREFIX)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
@@ -51,13 +50,21 @@ public class LoginControllerTest {
                 .andExpect(status().isOk());
     }
 
+    /*
     @Test
     public void whenInvalidLoginThenReturn403() throws Exception {
-        Object auth = new Object() {
-            public final String login = "client";
-            public final String password = null;
-        };
-        ObjectMapper objectMapper = new ObjectMapper();
+        LoginRequestDto auth = new LoginRequestDto("client#1", "wrongPassword");
+        String json = objectMapper.writeValueAsString(auth);
+        mvc.perform(post(PREFIX)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(json))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof AccessDeniedException));
+    }
+
+    @Test
+    public void whenInvalidPasswordThenReturn403() throws Exception {
+        LoginRequestDto auth = new LoginRequestDto(null, "client#1");
         String json = objectMapper.writeValueAsString(auth);
         mvc.perform(post(PREFIX)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -65,20 +72,5 @@ public class LoginControllerTest {
                 .content(json))
                 .andExpect(status().isForbidden());
     }
-
-    @Test
-    public void whenInvalidPasswordThenReturn403() throws Exception {
-        Object auth = new Object() {
-            public final String login = null;
-            public final String password = "client";
-        };
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(auth);
-
-        mvc.perform(post(PREFIX)
-                .contentType(MediaType.APPLICATION_JSON)
-                .characterEncoding("utf-8")
-                .content(json))
-                .andExpect(status().isForbidden());
-    }*/
+    */
 }

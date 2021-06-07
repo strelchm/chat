@@ -102,6 +102,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserDto> getUserByLogin(String login) {
-        return Optional.ofNullable(MappingUtil.mapToUserDto(userRepository.findByLogin(login).orElse(null)));
+        User user = userRepository.findByLogin(login).orElse(null);
+        return Optional.ofNullable(MappingUtil.mapToUserDto(user));
     }
 }
