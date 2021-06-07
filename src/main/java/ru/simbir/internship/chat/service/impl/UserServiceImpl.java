@@ -56,23 +56,25 @@ public class UserServiceImpl implements UserService {
     public UserDto edit(UserDto dto, UserDto userDto) {
         User user = getUserById(dto.getId());
 
-        if(!dto.getId().equals(userDto.getId()) || user.getUserAppRole() != UserAppRole.ADMIN) { // редактировать можно только самому себя или админу
+        if(dto.getId().equals(userDto.getId()) || userDto.getUserAppRole() == UserAppRole.ADMIN) { // редактировать можно только самому себя или админу
+            userRepository.save(MappingUtil.mapToUserEntity(dto));
+            return dto;
+        } else {
             throw new AccessDeniedException();
         }
-
-        userRepository.save(MappingUtil.mapToUserEntity(dto));
-        return dto;
     }
 
     @Override
     public void delete(UUID id, UserDto userDto) {
         User user = getUserById(id);
 
-        if(!id.equals(userDto.getId()) || user.getUserAppRole() != UserAppRole.ADMIN) { // удалить можно только самому себя или админу
+        if (id.equals(userDto.getId()) || userDto.getUserAppRole() == UserAppRole.ADMIN) { // удалить можно только самому себя или админу
+            userRepository.deleteById(id);
+        } else {
             throw new AccessDeniedException();
         }
 
-        userRepository.deleteById(id);
+
     }
 
     @Override

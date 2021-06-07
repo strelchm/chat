@@ -7,6 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -57,6 +58,7 @@ public class UserRoom {
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     private UserRoomRole userRoomRole;
 
