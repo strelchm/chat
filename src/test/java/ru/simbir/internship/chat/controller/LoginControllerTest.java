@@ -24,7 +24,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class LoginControllerTest {
     static final String PREFIX = "/api/login";
-    static final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private WebApplicationContext context;
@@ -50,7 +52,7 @@ public class LoginControllerTest {
                 .andExpect(status().isOk());
     }
 
-   /* @Test
+    @Test
     public void whenInvalidLoginThenReturn403() throws Exception {
         LoginRequestDto auth = new LoginRequestDto("client#1", "wrongPassword");
         String json = objectMapper.writeValueAsString(auth);
@@ -58,7 +60,7 @@ public class LoginControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf-8")
                 .content(json))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof AccessDeniedException));
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -70,5 +72,5 @@ public class LoginControllerTest {
                 .characterEncoding("utf-8")
                 .content(json))
                 .andExpect(status().isForbidden());
-    }*/
+    }
 }

@@ -23,9 +23,8 @@ import java.util.UUID;
 @Validated
 @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")
 public class RoomController extends ParentController {
+
     private final RoomService roomService;
-   /* @Autowired
-    private JwtTokenService jwtTokenService;*/
 
     @Autowired
     public RoomController(RoomService roomService, UserService userService) {
@@ -38,13 +37,6 @@ public class RoomController extends ParentController {
         return roomService.getAll(userContext.getUser().get());
     }
 
-   /*
-    Рассмотреть такую реализацию вытягивания текущего юзера (user_context мешает тестированию)
-    @GetMapping
-    public List<RoomDto> getAllRooms(@RequestHeader("Authorization") String token) {
-        return roomService.getAll(jwtTokenService.parseToken(token.substring(7)));
-    }
-    */
 
     @GetMapping("/own")
     public List<RoomDto> getAllRoomsByUser(@ModelAttribute(USER_CONTEXT) UserContext userContext) {
