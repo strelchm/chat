@@ -9,6 +9,7 @@ import ru.simbir.internship.chat.dto.IdDto;
 import ru.simbir.internship.chat.dto.RoomDto;
 import ru.simbir.internship.chat.dto.UserContext;
 import ru.simbir.internship.chat.exception.BadRequestException;
+import ru.simbir.internship.chat.service.JwtTokenService;
 import ru.simbir.internship.chat.service.RoomService;
 import ru.simbir.internship.chat.service.UserService;
 
@@ -22,6 +23,8 @@ import java.util.UUID;
 @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")
 public class RoomController extends ParentController {
     private final RoomService roomService;
+   /* @Autowired
+    private JwtTokenService jwtTokenService;*/
 
     @Autowired
     public RoomController(RoomService roomService, UserService userService) {
@@ -33,6 +36,14 @@ public class RoomController extends ParentController {
     public List<RoomDto> getAllRooms(@ModelAttribute(USER_CONTEXT) UserContext userContext) {
         return roomService.getAll(userContext.getUser().get());
     }
+
+   /*
+    Рассмотреть такую реализацию вытягивания текущего юзера (user_context мешает тестированию)
+    @GetMapping
+    public List<RoomDto> getAllRooms(@RequestHeader("Authorization") String token) {
+        return roomService.getAll(jwtTokenService.parseToken(token.substring(7)));
+    }
+    */
 
     @GetMapping("/own")
     public List<RoomDto> getAllRoomsByUser(@ModelAttribute(USER_CONTEXT) UserContext userContext) {
@@ -56,7 +67,7 @@ public class RoomController extends ParentController {
     public RoomDto updateRoom(@NotNull(message = NULL_UPDATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody RoomDto dto,
                               @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                               @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        if (id != dto.getId()) throw new BadRequestException();
+        if (!id.equals(dto.getId())) throw new BadRequestException();
         return roomService.edit(dto, userContext.getUser().get());
     }
 
@@ -64,7 +75,7 @@ public class RoomController extends ParentController {
     public RoomDto patchRoom(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                              @NotNull(message = NULL_PATCH_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody RoomDto dto,
                              @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        if (id != dto.getId()) throw new BadRequestException();
+        if (!id.equals(dto.getId())) throw new BadRequestException();
         RoomDto roomDto = roomService.getById(id, userContext.getUser().get());
 
         if (!roomDto.getName().equals(dto.getName())) {
@@ -85,7 +96,7 @@ public class RoomController extends ParentController {
         roomService.delete(id, userContext.getUser().get());
     }
 
-    @PostMapping("/{id}/members/add")
+    @PostMapping("/{id}/members")
     @ResponseStatus(value = HttpStatus.OK)
     public void addMembers(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody UUID[] memberId,
                            @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
@@ -93,17 +104,17 @@ public class RoomController extends ParentController {
         roomService.addMembers(id, userContext.getUser().get(), memberId);
     }
 
-    @PostMapping("/{id}/members/delete")
-    @ResponseStatus(value = HttpStatus.OK)
-    public void deleteMembers(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody UUID[] memberId,
+    @DeleteMapping("/{id}/members/{memberId}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteMembers(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @PathVariable UUID memberId,
                            @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                            @ModelAttribute(USER_CONTEXT) UserContext userContext) {
         roomService.removeMembers(id, userContext.getUser().get(), memberId);
     }
 
-    @PostMapping("/{id}/moderators/{moderatorId}")
+    @PostMapping("/{id}/moderators")
     @ResponseStatus(value = HttpStatus.OK)
-    public void addModerator(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID moderatorId,
+    public void addModerator(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @RequestBody UUID moderatorId,
                            @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                            @ModelAttribute(USER_CONTEXT) UserContext userContext) {
         roomService.moderatorAdd(id, userContext.getUser().get(), moderatorId);
@@ -116,6 +127,5 @@ public class RoomController extends ParentController {
                              @ModelAttribute(USER_CONTEXT) UserContext userContext) {
         roomService.moderatorRemove(id, userContext.getUser().get(), moderatorId);
     }
-
 
 }

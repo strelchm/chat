@@ -39,6 +39,7 @@ public class MessageController extends ParentController {
     public Page<MessageDto> getAllMessages(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
                                            @ModelAttribute(USER_CONTEXT) UserContext userContext,
                                            @PageableDefault(size = DEFAULT_PAGE_SIZE, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        
         return messageService.getAll(pageable, roomId, userContext.getUser().get());
     }
 

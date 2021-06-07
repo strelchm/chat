@@ -35,9 +35,9 @@ public class User extends ParentEntity {
     @Enumerated(EnumType.STRING)
     private UserAppRole userAppRole;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserRoom> userRooms;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Message> messages;
 }
