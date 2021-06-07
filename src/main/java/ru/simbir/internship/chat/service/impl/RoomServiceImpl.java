@@ -39,8 +39,7 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
     }
 
     @Override
-    public List<RoomDto> getAll(UserDto userDto) { // todo разделить с методом ниже, дабы закрыть секьюрной аннотацией
-       // checkAccess(userDto, null); // null запрещён для всех
+    public List<RoomDto> getAll(UserDto userDto) {
         return roomRepository.findAll().stream().map(MappingUtil::mapToRoomDto).collect(Collectors.toList());
     }
 
@@ -82,9 +81,16 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
     @Override
     public RoomDto edit(RoomDto dto, UserDto userDto) {
         checkAccess(userDto, dto.getId(), UserRoomRole.MODERATOR, UserRoomRole.USER, UserRoomRole.BLOCKED_USER);
-        getRoomById(dto.getId());
-        roomRepository.save(MappingUtil.mapToRoomEntity(dto));
-        return dto;
+
+        Room room = getRoomById(dto.getId());
+        if (!dto.getName().equals(dto.getName())) {
+            room.setName(dto.getName());
+        }
+
+        if (!dto.getType().equals(dto.getType())) {
+            room.setType(dto.getType());
+        }
+        return MappingUtil.mapToRoomDto(roomRepository.save(room));
     }
 
     @Override
@@ -150,7 +156,7 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
         roomRepository.deleteById(id);
     }
 
-    private Room getRoomById(UUID id) {
+    public Room getRoomById(UUID id) {
         return roomRepository.findById(id).orElseThrow(() -> new NotFoundException("Room with id " + id + " not found"));
     }
 }

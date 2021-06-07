@@ -15,8 +15,6 @@ import java.util.UUID;
 public class MessageDto {
     private UUID id;
     private String text;
-    private UserDto user;
-    private RoomDto room;
     private Date created;
     private Date updated;
 }

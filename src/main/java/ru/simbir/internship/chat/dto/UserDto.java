@@ -1,5 +1,6 @@
 package ru.simbir.internship.chat.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class UserDto {
     private UUID id;
     private String login;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String password;
     private UserStatus status;
     private UserAppRole userAppRole;

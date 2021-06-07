@@ -9,13 +9,15 @@ import ru.simbir.internship.chat.domain.UserRoomRole;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRoomDto {
-    private UserDto user;
+    private UUID userId;
+    private UUID roomId;
     private UserRoomRole userRoomRole;
     private LocalDateTime blockedTime;
     private Date created;

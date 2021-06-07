@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.simbir.internship.chat.dto.IdDto;
 import ru.simbir.internship.chat.dto.RoomDto;
 import ru.simbir.internship.chat.dto.UserContext;
+import ru.simbir.internship.chat.dto.WrapperDto;
 import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.service.JwtTokenService;
 import ru.simbir.internship.chat.service.RoomService;
@@ -67,7 +68,11 @@ public class RoomController extends ParentController {
     public RoomDto updateRoom(@NotNull(message = NULL_UPDATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody RoomDto dto,
                               @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                               @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        if (!id.equals(dto.getId())) throw new BadRequestException();
+        if (dto.getId() == null) {
+            dto.setId(id);
+        } else if (!id.equals(dto.getId())) {
+            throw new BadRequestException();
+        }
         return roomService.edit(dto, userContext.getUser().get());
     }
 
@@ -75,7 +80,12 @@ public class RoomController extends ParentController {
     public RoomDto patchRoom(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                              @NotNull(message = NULL_PATCH_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody RoomDto dto,
                              @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        if (!id.equals(dto.getId())) throw new BadRequestException();
+        if (dto.getId() == null) {
+            dto.setId(id);
+        } else if (!id.equals(dto.getId())) {
+            throw new BadRequestException();
+        }
+
         RoomDto roomDto = roomService.getById(id, userContext.getUser().get());
 
         if (!roomDto.getName().equals(dto.getName())) {
@@ -98,10 +108,10 @@ public class RoomController extends ParentController {
 
     @PostMapping("/{id}/members")
     @ResponseStatus(value = HttpStatus.OK)
-    public void addMembers(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody UUID[] memberId,
+    public void addMembers(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody WrapperDto<UUID[]> memberId,
                            @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                            @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        roomService.addMembers(id, userContext.getUser().get(), memberId);
+        roomService.addMembers(id, userContext.getUser().get(), memberId.getValue());
     }
 
     @DeleteMapping("/{id}/members/{memberId}")
@@ -114,10 +124,10 @@ public class RoomController extends ParentController {
 
     @PostMapping("/{id}/moderators")
     @ResponseStatus(value = HttpStatus.OK)
-    public void addModerator(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @RequestBody UUID moderatorId,
+    public void addModerator(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @RequestBody IdDto moderatorId,
                            @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                            @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        roomService.moderatorAdd(id, userContext.getUser().get(), moderatorId);
+        roomService.moderatorAdd(id, userContext.getUser().get(), moderatorId.getId());
     }
 
     @DeleteMapping("/{id}/moderators/{moderatorId}")

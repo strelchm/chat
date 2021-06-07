@@ -15,7 +15,9 @@ import ru.simbir.internship.chat.repository.UserRepository;
 import ru.simbir.internship.chat.service.UserService;
 import ru.simbir.internship.chat.util.MappingUtil;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,12 +32,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAll() { // todo в контроллере возвращать урезанную дто, дабы другие не видели лишних деталей
+    public List<UserDto> getAll() {
         return userRepository.findAll().stream().map(MappingUtil::mapToUserDto).collect(Collectors.toList());
     }
 
     @Override
-    public UserDto getById(UUID id) { // todo в контроллере возвращать урезанную дто, дабы другие не видели лишних деталей
+    public UserDto getById(UUID id) {
         return MappingUtil.mapToUserDto(getUserById(id));
     }
 
@@ -43,7 +45,7 @@ public class UserServiceImpl implements UserService {
     public UUID add(UserDto dto) {
         if (dto.getUserAppRole() == null) {
             dto.setUserAppRole(UserAppRole.CLIENT);
-        } else if(dto.getUserAppRole() == UserAppRole.ADMIN) {
+        } else if (dto.getUserAppRole() == UserAppRole.ADMIN) {
             throw new BadRequestException("Can't register admin during standard registration attempt");
         }
 
@@ -54,14 +56,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto edit(UserDto dto, UserDto userDto) {
-        User user = getUserById(dto.getId());
-
-        if(dto.getId().equals(userDto.getId()) || userDto.getUserAppRole() == UserAppRole.ADMIN) { // редактировать можно только самому себя или админу
-            userRepository.save(MappingUtil.mapToUserEntity(dto));
-            return dto;
-        } else {
+        if (!dto.getId().equals(userDto.getId()) && userDto.getUserAppRole() != UserAppRole.ADMIN) { // редактировать можно только самому себя или админу
             throw new AccessDeniedException();
         }
+
+        User user = getUserById(dto.getId());
+
+        if (dto.getLogin() != null && !user.getLogin().equals(dto.getLogin())) {
+            user.setLogin(dto.getLogin());
+        }
+
+        if (dto.getStatus() != null && !user.getStatus().equals(dto.getStatus())) {
+            user.setStatus(dto.getStatus());
+        }
+
+        return MappingUtil.mapToUserDto(userRepository.save(user));
     }
 
     @Override
