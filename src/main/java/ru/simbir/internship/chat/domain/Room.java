@@ -1,12 +1,14 @@
 package ru.simbir.internship.chat.domain;
 
-import com.sun.istack.NotNull;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
@@ -21,14 +23,16 @@ import java.util.Set;
 public class Room extends ParentEntity {
     @NotNull
     @Size(min = 1, max = 50)
+    @Column(unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "room")
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Message> messages;
 
-    @OneToMany(mappedBy = "room")
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserRoom> userRooms;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     private RoomType type;
 }

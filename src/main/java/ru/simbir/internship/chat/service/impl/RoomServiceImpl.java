@@ -40,7 +40,7 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
 
     @Override
     public List<RoomDto> getAll(UserDto userDto) { // todo разделить с методом ниже, дабы закрыть секьюрной аннотацией
-        checkAccess(userDto, null);
+       // checkAccess(userDto, null); // null запрещён для всех
         return roomRepository.findAll().stream().map(MappingUtil::mapToRoomDto).collect(Collectors.toList());
     }
 
@@ -93,16 +93,15 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
 
         for (UUID id : idArray) {
             try {
-                getUserRoomByUserAndRoom(userDto.getId(), id);
-                log.warning("User with id " + userDto.getId() + " already exists in chat room " + roomId);
+                getUserRoomByUserAndRoom(id, roomId);
+                log.warning("User with id " + id + " already exists in chat room " + roomId);
                 continue;
             } catch (AccessDeniedException ex) {
                 UserRoom userRoom = new UserRoom();
 
                 UserRoom.Key key = new UserRoom.Key();
                 key.setRoomId(roomId);
-                key.setUserId(userDto.getId());
-
+                key.setUserId(id);
                 userRoom.setId(key);
                 userRoom.setRoom(getRoomById(roomId));
                 userRoom.setUser(userService.getUserById(id));
@@ -116,9 +115,10 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
     public void removeMembers(UUID roomId, UserDto userDto, UUID... idArray) {
         checkAccess(userDto, roomId, UserRoomRole.USER, UserRoomRole.MODERATOR, UserRoomRole.BLOCKED_USER);
         for (UUID id : idArray) {
-            userRoomRepository.delete(getUserRoomByUserAndRoom(userDto.getId(), id));
+            userRoomRepository.delete(getUserRoomByUserAndRoom(id, roomId));
         }
     }
+
 
     @Override
     @Secured("ROLE_ADMIN")
@@ -129,6 +129,7 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
             userRoomRepository.save(userRoom);
         } catch (AccessDeniedException ex) {
             addMembers(roomId, userDto, moderatorId);
+            moderatorAdd(roomId, userDto, moderatorId);
         }
     }
 

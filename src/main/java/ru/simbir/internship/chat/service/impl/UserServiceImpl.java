@@ -15,10 +15,7 @@ import ru.simbir.internship.chat.repository.UserRepository;
 import ru.simbir.internship.chat.service.UserService;
 import ru.simbir.internship.chat.util.MappingUtil;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,7 +93,13 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Override
     public User getUserById(UUID id) {
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
+    }
+
+    @Override
+    public Optional<UserDto> getUserByLogin(String login) {
+        return Optional.ofNullable(MappingUtil.mapToUserDto(userRepository.findByLogin(login).orElse(null)));
     }
 }

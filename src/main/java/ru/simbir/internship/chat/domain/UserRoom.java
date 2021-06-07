@@ -1,6 +1,8 @@
 package ru.simbir.internship.chat.domain;
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -60,11 +62,9 @@ public class UserRoom {
 
     private LocalDateTime blockedTime;
 
-    @CreatedDate
-    @Column(name = "created")
+    @CreationTimestamp
     private Date created;
 
-    @LastModifiedDate
-    @Column(name = "updated")
+    @UpdateTimestamp
     private Date updated;
 }
