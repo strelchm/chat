@@ -20,7 +20,7 @@ import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/rooms")
+@RequestMapping("/api")
 @Validated
 @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")
 public class MessageController extends ParentController {
@@ -33,7 +33,7 @@ public class MessageController extends ParentController {
     }
 
 
-    @GetMapping("/{roomId}/messages")
+    @GetMapping("/rooms/{roomId}/messages")
     public Page<MessageDto> getAllMessages(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
                                            @ModelAttribute(USER_CONTEXT) UserContext userContext,
                                            @PageableDefault(size = DEFAULT_PAGE_SIZE, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
@@ -41,22 +41,22 @@ public class MessageController extends ParentController {
         return messageService.getAll(pageable, roomId, userContext.getUser().get());
     }
 
-    @GetMapping("/{roomId}/messages/{id}")
+    @GetMapping("/rooms/{roomId}/messages/{id}")
     public MessageDto getMessageById(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                                      @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
                                      @ModelAttribute(USER_CONTEXT) UserContext userContext) {
         return messageService.getById(id, roomId, userContext.getUser().get());
     }
 
-    @PostMapping("/{roomId}/messages")
+    @PostMapping("/rooms/{roomId}/messages")
     @ResponseStatus(value = HttpStatus.CREATED)
     public IdDto createMessage(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto,
-                               @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
-                               @ModelAttribute(USER_CONTEXT) UserContext userContext) {
+                                          @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
+                                          @ModelAttribute(USER_CONTEXT) UserContext userContext) {
         return new IdDto(messageService.add(dto, roomId, userContext.getUser().get()));
     }
 
-    @PutMapping("/{roomId}/messages/{id}")
+    @PutMapping("/rooms/{roomId}/messages/{id}")
     public MessageDto updateMessage(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto,
                                     @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                                     @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
@@ -69,7 +69,7 @@ public class MessageController extends ParentController {
         return messageService.edit(dto, roomId, userContext.getUser().get());
     }
 
-    @DeleteMapping("/{roomId}/messages/{id}")
+    @DeleteMapping("/rooms/{roomId}/messages/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                               @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,

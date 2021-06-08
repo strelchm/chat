@@ -77,13 +77,11 @@ public class UserServiceImpl implements UserService {
     public void delete(UUID id, UserDto userDto) {
         User user = getUserById(id);
 
-        if (id.equals(userDto.getId()) || userDto.getUserAppRole() == UserAppRole.ADMIN) { // удалить можно только самому себя или админу
-            userRepository.deleteById(id);
-        } else {
+        if (!id.equals(userDto.getId()) && userDto.getUserAppRole() != UserAppRole.ADMIN) { // удалить можно только самому себя или админу
             throw new AccessDeniedException();
         }
 
-
+        userRepository.delete(user);
     }
 
     @Override

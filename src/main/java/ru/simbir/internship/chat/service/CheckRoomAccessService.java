@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public class CheckRoomAccessService {
-    private final UserRoomRepository userRoomRepository;
+    protected final UserRoomRepository userRoomRepository;
 
     public CheckRoomAccessService(UserRoomRepository userRoomRepository) {
         this.userRoomRepository = userRoomRepository;
@@ -23,13 +23,16 @@ public class CheckRoomAccessService {
         );
     }
 
-    protected void checkAccess(UserDto userDto, UUID roomId, UserRoomRole... accessDeniedRoles) {
-        if (userDto.getUserAppRole() != UserAppRole.ADMIN) {
-            UserRoom userRoom = getUserRoomByUserAndRoom(userDto.getId(), roomId);
-            if (accessDeniedRoles != null && accessDeniedRoles.length != 0 && Arrays.stream(accessDeniedRoles).anyMatch(gr -> gr == userRoom.getUserRoomRole())) {
-                throw new AccessDeniedException("Permission denied for user " + userDto.getId() + " with role " +
-                        userRoom.getUserRoomRole() + " in chat room " + roomId);
-            }
+    protected UserRoom checkRoomAccess(UserDto userDto, UUID roomId, UserRoomRole... accessDeniedRoles) {
+        if (userDto.getUserAppRole() == UserAppRole.ADMIN) {
+            return null;
         }
+
+        UserRoom userRoom = getUserRoomByUserAndRoom(userDto.getId(), roomId);
+        if (accessDeniedRoles != null && accessDeniedRoles.length != 0 && Arrays.stream(accessDeniedRoles).anyMatch(gr -> gr == userRoom.getUserRoomRole())) {
+            throw new AccessDeniedException("Permission denied for user " + userDto.getId() + " with role " +
+                    userRoom.getUserRoomRole() + " in chat room " + roomId);
+        }
+        return userRoom;
     }
 }

@@ -10,7 +10,6 @@ import ru.simbir.internship.chat.dto.RoomDto;
 import ru.simbir.internship.chat.dto.UserContext;
 import ru.simbir.internship.chat.dto.WrapperDto;
 import ru.simbir.internship.chat.exception.BadRequestException;
-import ru.simbir.internship.chat.service.JwtTokenService;
 import ru.simbir.internship.chat.service.RoomService;
 import ru.simbir.internship.chat.service.UserService;
 
@@ -23,7 +22,6 @@ import java.util.UUID;
 @Validated
 @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")
 public class RoomController extends ParentController {
-
     private final RoomService roomService;
 
     @Autowired
@@ -36,7 +34,6 @@ public class RoomController extends ParentController {
     public List<RoomDto> getAllRooms(@ModelAttribute(USER_CONTEXT) UserContext userContext) {
         return roomService.getAll(userContext.getUser().get());
     }
-
 
     @GetMapping("/own")
     public List<RoomDto> getAllRoomsByUser(@ModelAttribute(USER_CONTEXT) UserContext userContext) {
