@@ -16,10 +16,7 @@ import org.springframework.web.context.WebApplicationContext;
 import ru.simbir.internship.chat.domain.UserAppRole;
 import ru.simbir.internship.chat.domain.UserStatus;
 import ru.simbir.internship.chat.dto.UserDto;
-import ru.simbir.internship.chat.repository.MessageRepository;
-import ru.simbir.internship.chat.repository.RoomRepository;
-import ru.simbir.internship.chat.repository.UserRepository;
-import ru.simbir.internship.chat.repository.UserRoomRepository;
+
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
