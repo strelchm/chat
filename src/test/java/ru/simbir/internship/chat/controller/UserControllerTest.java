@@ -202,7 +202,7 @@ public class UserControllerTest {
         mvc.perform(MockMvcRequestBuilders
                 .post(PREFIX.concat("//00000000-0000-0000-0000-000000000001/unblock"))
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
 }

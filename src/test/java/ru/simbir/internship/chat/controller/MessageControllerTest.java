@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MessageControllerTest {
 
-    private static final String PREFIX = "/api/rooms";
+    private static final String PREFIX = "/api";
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -57,7 +57,7 @@ public class MessageControllerTest {
     @WithMockUser(username = "client#1", roles = {"CLIENT"})
     public void whenAuthRequestThenReturn200() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-                .get(PREFIX.concat("/00000000-0000-0000-0000-000000000001/messages"))
+                .get(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000001/messages"))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -66,7 +66,7 @@ public class MessageControllerTest {
     @WithMockUser(username = "client#4", roles = {"CLIENT"})
     public void whenGetByIdRequestThenReturn200() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-                .get(PREFIX.concat("/00000000-0000-0000-0000-000000000001/messages/00000000-0000-0000-0000-000000000001"))
+                .get(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000001/messages/00000000-0000-0000-0000-000000000001"))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -79,7 +79,7 @@ public class MessageControllerTest {
         dto.setText("AAA");
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
-                .post(PREFIX.concat("/00000000-0000-0000-0000-000000000001/messages"))
+                .post(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000001/messages"))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -93,7 +93,7 @@ public class MessageControllerTest {
         dto.setText("AAA");
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
-                .post(PREFIX.concat("/00000000-0000-0000-0000-000000000001/messages"))
+                .post(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000001/messages"))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -108,7 +108,7 @@ public class MessageControllerTest {
         dto.setText("AAA");
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
-                .post(PREFIX.concat("/00000000-0000-0000-0000-000000000001/messages"))
+                .post(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000001/messages"))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -122,7 +122,7 @@ public class MessageControllerTest {
         dto.setText("AAA");
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
-                .post(PREFIX.concat("/00000000-0000-0000-0000-000000000001/messages"))
+                .post(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000001/messages"))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -136,7 +136,7 @@ public class MessageControllerTest {
         dto.setText("BBB");
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
-                .put(PREFIX.concat("/00000000-0000-0000-0000-000000000001/messages/00000000-0000-0000-0000-000000000001"))
+                .put(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000001/messages/00000000-0000-0000-0000-000000000001"))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -150,7 +150,7 @@ public class MessageControllerTest {
         dto.setText("BBB");
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
-                .put(PREFIX.concat("/00000000-0000-0000-0000-000000000004/messages/00000000-0000-0000-0000-000000000009"))
+                .put(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000004/messages/00000000-0000-0000-0000-000000000009"))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -164,7 +164,7 @@ public class MessageControllerTest {
         dto.setText("BBB");
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
-                .put(PREFIX.concat("/00000000-0000-0000-0000-000000000002/messages/00000000-0000-0000-0000-000000000004"))
+                .put(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000002/messages/00000000-0000-0000-0000-000000000004"))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -178,7 +178,7 @@ public class MessageControllerTest {
         dto.setText("BBB");
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
-                .put(PREFIX.concat("/00000000-0000-0000-0000-000000000004/messages/00000000-0000-0000-0000-000000000008"))
+                .put(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000004/messages/00000000-0000-0000-0000-000000000008"))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -189,7 +189,7 @@ public class MessageControllerTest {
     @WithMockUser(username = "client#1", roles = {"CLIENT"})
     public void whenClientDeleteHimselfThenReturn204() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-                .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000001/messages/00000000-0000-0000-0000-000000000001"))
+                .delete(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000001/messages/00000000-0000-0000-0000-000000000001"))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
@@ -199,7 +199,7 @@ public class MessageControllerTest {
     @WithMockUser(username = "client#1", roles = {"CLIENT"})
     public void whenClientOwnerDeleteAnotherThenReturn403() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-                .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000001/messages/00000000-0000-0000-0000-000000000002"))
+                .delete(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000001/messages/00000000-0000-0000-0000-000000000002"))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -209,7 +209,7 @@ public class MessageControllerTest {
     @WithMockUser(username = "client#2", roles = {"CLIENT"})
     public void whenClienDeleteAnotherThenReturn403() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-                .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000001/messages/00000000-0000-0000-0000-000000000002"))
+                .delete(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000001/messages/00000000-0000-0000-0000-000000000001"))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -219,7 +219,7 @@ public class MessageControllerTest {
     @WithMockUser(username = "client#4", roles = {"CLIENT"})
     public void whenBlockedUserDeleteThenReturn403() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-                .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000002/messages/00000000-0000-0000-0000-000000000006"))
+                .delete(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000002/messages/00000000-0000-0000-0000-000000000006"))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -229,7 +229,7 @@ public class MessageControllerTest {
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void whenAdminDeleteThenReturn204() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-                .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000002/messages/00000000-0000-0000-0000-000000000003"))
+                .delete(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000002/messages/00000000-0000-0000-0000-000000000003"))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
@@ -239,7 +239,7 @@ public class MessageControllerTest {
     @WithMockUser(username = "client#2", roles = {"CLIENT"})
     public void whenModeratorDeleteThenReturn204() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-                .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000004/messages/00000000-0000-0000-0000-000000000007"))
+                .delete(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000004/messages/00000000-0000-0000-0000-000000000007"))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
