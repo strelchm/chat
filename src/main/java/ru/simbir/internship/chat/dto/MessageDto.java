@@ -3,9 +3,9 @@ package ru.simbir.internship.chat.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.simbir.internship.chat.domain.Room;
-import ru.simbir.internship.chat.domain.User;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.UUID;
 
@@ -14,6 +14,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class MessageDto {
     private UUID id;
+    private UUID roomId;
+    private UUID userId;
+    @NotNull(message = "text can't be null")
+    @NotEmpty(message = "text can't be empty")
     private String text;
     private Date created;
     private Date updated;

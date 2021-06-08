@@ -2,7 +2,6 @@ package ru.simbir.internship.chat.util;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.simbir.internship.chat.domain.Room;
 import ru.simbir.internship.chat.dto.RoomDto;
 
@@ -12,6 +11,10 @@ import java.util.stream.Collectors;
 public interface RoomMapper {
     RoomMapper INSTANCE = Mappers.getMapper(RoomMapper.class);
 
+//    @Mapping(target = "userRooms", expression = "java(" +
+//            "entity.getUserRooms() != null ? " +
+//            "entity.getUserRooms().stream().map(MappingUtil::mapToUserRoomDto).collect(Collectors.toSet()) : " +
+//            "null)")
     default RoomDto toDto(Room entity) {
         if (entity == null) return null;
         RoomDto dto = new RoomDto();

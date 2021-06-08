@@ -1,8 +1,10 @@
 package ru.simbir.internship.chat.controller;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -35,16 +37,23 @@ public class ParentController {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public HashMap<String, String> handleNotFoundExceptions(Exception ex) {
-        HashMap<String, String> response = new HashMap<>();
-        response.put("message", ex.getMessage());
-        response.put("error", ex.getClass().getSimpleName());
-        ex.printStackTrace();
-        return response;
+        return getResponseFromException(ex);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public HashMap<String, String> handleAccessDeniedExceptions(Exception ex) {
+        return getResponseFromException(ex);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public HashMap<String, String> handleBadRequestExceptions(Exception ex) {
+        return getResponseFromException(ex);
+    }
+
+    @NotNull
+    private HashMap<String, String> getResponseFromException(Exception ex) {
         HashMap<String, String> response = new HashMap<>();
         response.put("message", ex.getMessage());
         response.put("error", ex.getClass().getSimpleName());
@@ -52,11 +61,11 @@ public class ParentController {
         return response;
     }
 
-    @ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public HashMap<String, String> handleBadRequestExceptions(Exception ex) {
+    public HashMap<String, String> handleBadRequestExceptions(MethodArgumentNotValidException ex) {
         HashMap<String, String> response = new HashMap<>();
-        response.put("message", ex.getMessage());
+        response.put("message", ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
         response.put("error", ex.getClass().getSimpleName());
         ex.printStackTrace();
         return response;
@@ -65,10 +74,7 @@ public class ParentController {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public HashMap<String, String> handleIntervalServerExceptions(Exception ex) {
-        HashMap<String, String> response = new HashMap<>();
-        response.put("message", ex.getMessage());
-        response.put("error", ex.getClass().getSimpleName());
-        ex.printStackTrace();
+        HashMap<String, String> response = getResponseFromException(ex);
         return response;
     }
 
