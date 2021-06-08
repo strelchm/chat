@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.simbir.internship.chat.dto.IdDto;
 import ru.simbir.internship.chat.dto.UserContext;
 import ru.simbir.internship.chat.dto.UserDto;
-import ru.simbir.internship.chat.dto.WrapperDto;
 import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.service.UserService;
 
@@ -39,8 +39,8 @@ public class UserController extends ParentController {
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
-    public WrapperDto<UUID> createUser(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody UserDto dto) {
-        return new WrapperDto(userService.add(dto));
+    public IdDto createUser(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody UserDto dto) {
+        return new IdDto(userService.add(dto));
     }
 
     @PatchMapping("/{id}")
