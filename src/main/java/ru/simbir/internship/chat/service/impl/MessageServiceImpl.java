@@ -80,8 +80,14 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
 
     @Override
     public void delete(UUID messageId, UUID chatRoomId, UserDto userDto) {
+        UserRoom userRoom = checkRoomAccess(userDto, chatRoomId, UserRoomRole.BLOCKED_USER);
         Message message = getMessageById(messageId);
-        checkRoomAccess(userDto, chatRoomId, UserRoomRole.OWNER, UserRoomRole.BLOCKED_USER, UserRoomRole.USER);
+
+        if (userDto.getUserAppRole() != UserAppRole.ADMIN && userRoom.getUserRoomRole() != UserRoomRole.MODERATOR &&
+                message.getUser().getId() != userDto.getId()) {
+            throw new AccessDeniedException("Only admin or moderator can delete other user message");
+        }
+
         messageRepository.delete(message);
     }
 
