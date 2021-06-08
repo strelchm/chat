@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @Service
 public class RoomServiceImpl extends CheckRoomAccessService implements RoomService {
     private final RoomRepository roomRepository;
-    private final UserRoomRepository userRoomRepository;
     private final UserService userService;
     private static final Logger log = Logger.getLogger(RoomServiceImpl.class.getName());
 
@@ -35,7 +34,6 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
         super(userRoomRepository);
         this.userService = userService;
         this.roomRepository = repository;
-        this.userRoomRepository = userRoomRepository;
     }
 
     @Override
@@ -80,7 +78,7 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
 
     @Override
     public RoomDto edit(RoomDto dto, UserDto userDto) {
-        checkAccess(userDto, dto.getId(), UserRoomRole.MODERATOR, UserRoomRole.USER, UserRoomRole.BLOCKED_USER);
+        checkRoomAccess(userDto, dto.getId(), UserRoomRole.MODERATOR, UserRoomRole.USER, UserRoomRole.BLOCKED_USER);
 
         Room room = getRoomById(dto.getId());
         if (!dto.getName().equals(dto.getName())) {
@@ -95,7 +93,7 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
 
     @Override
     public void addMembers(UUID roomId, UserDto userDto, UUID... idArray) {
-        checkAccess(userDto, roomId, UserRoomRole.BLOCKED_USER);
+        checkRoomAccess(userDto, roomId, UserRoomRole.BLOCKED_USER);
 
         for (UUID id : idArray) {
             try {
@@ -119,7 +117,7 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
 
     @Override
     public void removeMembers(UUID roomId, UserDto userDto, UUID... idArray) {
-        checkAccess(userDto, roomId, UserRoomRole.USER, UserRoomRole.MODERATOR, UserRoomRole.BLOCKED_USER);
+        checkRoomAccess(userDto, roomId, UserRoomRole.USER, UserRoomRole.MODERATOR, UserRoomRole.BLOCKED_USER);
         for (UUID id : idArray) {
             userRoomRepository.delete(getUserRoomByUserAndRoom(id, roomId));
         }
@@ -143,7 +141,7 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
     @Secured("ROLE_ADMIN")
     public void moderatorRemove(UUID roomId, UserDto userDto, UUID moderatorId) {
         UserRoom userRoom = getUserRoomByUserAndRoom(moderatorId, roomId);
-        if(userRoom.getUserRoomRole() != UserRoomRole.MODERATOR) {
+        if (userRoom.getUserRoomRole() != UserRoomRole.MODERATOR) {
             throw new BadRequestException("User is not moderator");
         }
         userRoomRepository.delete(userRoom);
@@ -151,9 +149,9 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
 
     @Override
     public void delete(UUID id, UserDto userDto) {
-        getRoomById(id);
-        checkAccess(userDto, id, UserRoomRole.MODERATOR, UserRoomRole.USER, UserRoomRole.BLOCKED_USER);
-        roomRepository.deleteById(id);
+        Room room = getRoomById(id);
+        checkRoomAccess(userDto, id, UserRoomRole.MODERATOR, UserRoomRole.USER, UserRoomRole.BLOCKED_USER);
+        roomRepository.delete(room);
     }
 
     public Room getRoomById(UUID id) {

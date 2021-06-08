@@ -19,5 +19,4 @@ public class RoomDto {
     private RoomType type;
     private Date created;
     private Date updated;
-
 }
