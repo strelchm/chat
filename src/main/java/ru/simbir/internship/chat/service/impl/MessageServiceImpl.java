@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.simbir.internship.chat.domain.Message;
 import ru.simbir.internship.chat.domain.UserAppRole;
 import ru.simbir.internship.chat.domain.UserRoom;
@@ -21,7 +23,10 @@ import ru.simbir.internship.chat.service.RoomService;
 import ru.simbir.internship.chat.service.UserService;
 import ru.simbir.internship.chat.util.MappingUtil;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class MessageServiceImpl extends CheckRoomAccessService implements MessageService {
@@ -93,5 +98,19 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
 
     private Message getMessageById(UUID messageId) {
         return messageRepository.findById(messageId).orElseThrow(() -> new NotFoundException("Message with id " + messageId + " not found"));
+    }
+
+    @Override
+    public MessageDto save(MessageDto dto) {
+        Message message = MappingUtil.mapToMessageEntity(dto);
+        message.setUser(userService.getUserById(dto.getUserId()));
+        message.setRoom(roomService.getRoomById(dto.getRoomId()));
+        return MappingUtil.mapToMessageDto(messageRepository.save(message));
+    }
+
+    @Override
+    @Transactional(propagation= Propagation.REQUIRED, readOnly=true, noRollbackFor=Exception.class)
+    public Set<MessageDto> findAll(UUID roomId) {
+        return roomService.getRoomById(roomId).getMessages().stream().map(MappingUtil::mapToMessageDto).collect(Collectors.toSet());
     }
 }

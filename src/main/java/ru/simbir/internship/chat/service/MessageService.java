@@ -6,6 +6,7 @@ import ru.simbir.internship.chat.dto.MessageDto;
 import ru.simbir.internship.chat.dto.UserDto;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface MessageService {
@@ -14,6 +15,10 @@ public interface MessageService {
     MessageDto getById(UUID messageId, UUID chatRoomId, UserDto userDto);
 
     UUID add(MessageDto dto, UUID chatRoomId, UserDto userDto);
+
+    MessageDto save(MessageDto dto);
+
+    Set<MessageDto> findAll(UUID roomId);
 
     MessageDto edit(MessageDto dto, UUID chatRoomId, UserDto userDto);
 
