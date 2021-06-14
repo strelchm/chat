@@ -13,7 +13,6 @@ import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.service.MessageService;
 import ru.simbir.internship.chat.service.UserService;
 
-import java.security.Principal;
 import java.util.Comparator;
 import java.util.UUID;
 

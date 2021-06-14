@@ -40,7 +40,7 @@ public class ParentController {
         return getResponseFromException(ex);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
+    @ExceptionHandler({AccessDeniedException.class, org.springframework.security.access.AccessDeniedException.class})
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public HashMap<String, String> handleAccessDeniedExceptions(Exception ex) {
         return getResponseFromException(ex);

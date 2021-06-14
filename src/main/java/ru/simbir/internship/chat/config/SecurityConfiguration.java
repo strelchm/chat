@@ -31,8 +31,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .mvcMatchers("/*", "/webjars/**","/ws/**",
-                        "/api/login", "/api/login/*","/api/users", "/api/users/*").permitAll() // todo
+                .mvcMatchers( "/api/login", "/api/login/*","/api/users", "/api/users/*").permitAll() // todo
+                .mvcMatchers("/ws/**").hasAnyRole("ADMIN", "CLIENT")
+                .mvcMatchers("/*", "/webjars/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(tokenService),

@@ -47,7 +47,7 @@ public class MessageControllerTest {
     @Test
     public void whenAnonymousThenReturn403() throws Exception {
         mvc.perform(MockMvcRequestBuilders
-                .get(PREFIX)
+                .get(PREFIX.concat("/rooms/00000000-0000-0000-0000-000000000001/messages"))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
