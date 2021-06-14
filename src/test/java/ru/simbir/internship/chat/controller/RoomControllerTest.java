@@ -100,9 +100,9 @@ public class RoomControllerTest {
 
     @Test
     @WithMockUser(username = "client#6", roles = {"CLIENT"})
-    public void whenPostByBlockedUserThenReturn403() throws Exception {
+    public void whenPostByGlobalBlockedUserThenReturn403() throws Exception {
         RoomDto dto = new RoomDto();
-        dto.setName("testRoom");
+        dto.setName("testRoom2");
         dto.setType(RoomType.PUBLIC);
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
