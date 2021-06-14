@@ -28,7 +28,7 @@ public class ParentController {
     static final String NULL_PATCH_OBJECT_REQUEST_EXCEPTION = "Instance that must be patch not found in request body";
     static final int DEFAULT_PAGE_SIZE = 100;
 
-    private final UserService userService;
+    protected final UserService userService;
 
     public ParentController(UserService userService) {
         this.userService = userService;
@@ -86,6 +86,15 @@ public class ParentController {
             return new UserContext(userId.map(userService::getById));
         } else {
             return new UserContext(userService.getUserByLogin(((User) authentication.getPrincipal()).getUsername()));
+        }
+    }
+
+    public UserDto getUserDto(Authentication authentication){
+        if (authentication == null) return null;
+        if (authentication.getPrincipal() instanceof UserDto) {
+            return userService.getById(((UserDto) authentication.getPrincipal()).getId());
+        } else {
+            return userService.getUserByLogin(((User) authentication.getPrincipal()).getUsername()).orElse(null);
         }
     }
 }

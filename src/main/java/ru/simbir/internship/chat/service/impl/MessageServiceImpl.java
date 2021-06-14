@@ -23,6 +23,7 @@ import ru.simbir.internship.chat.service.RoomService;
 import ru.simbir.internship.chat.service.UserService;
 import ru.simbir.internship.chat.util.MappingUtil;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -101,7 +102,8 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
     }
 
     @Override
-    public MessageDto save(MessageDto dto) {
+    public MessageDto save(MessageDto dto, UUID roomID, UserDto userDto) {
+        checkRoomAccess(userDto, roomID, UserRoomRole.BLOCKED_USER);
         Message message = MappingUtil.mapToMessageEntity(dto);
         message.setUser(userService.getUserById(dto.getUserId()));
         message.setRoom(roomService.getRoomById(dto.getRoomId()));
@@ -110,7 +112,38 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
 
     @Override
     @Transactional(propagation= Propagation.REQUIRED, readOnly=true, noRollbackFor=Exception.class)
-    public Set<MessageDto> findAll(UUID roomId) {
+    public Set<MessageDto> findAll(UUID roomId, UUID userId) {
+        checkRoomAccess(userService.getById(userId), roomId);
         return roomService.getRoomById(roomId).getMessages().stream().map(MappingUtil::mapToMessageDto).collect(Collectors.toSet());
+    }
+
+    @Override
+    public MessageDto process(MessageDto messageDto, UUID roomID, UserDto userDto) {
+        if (messageDto == null || roomID == null || userDto == null) {
+            throw new BadRequestException();
+        }
+        if (messageDto.getId() == null) {
+            if (messageDto.getUserId() == null) {
+                messageDto.setUserId(userDto.getId());
+            }
+            if (messageDto.getUserId() != userDto.getId()) {
+                throw new BadRequestException();
+            }
+            if (messageDto.getRoomId() == null) {
+                messageDto.setRoomId(roomID);
+            }
+            if (messageDto.getRoomId() != roomID) {
+                throw new BadRequestException();
+            }
+            return save(messageDto, roomID, userDto);
+        } else {
+            if (messageDto.getRoomId() == null) {
+                messageDto.setRoomId(roomID);
+            }
+            if (messageDto.getRoomId() != roomID) {
+                throw new BadRequestException();
+            }
+            return edit(messageDto, roomID, userDto);
+        }
     }
 }
