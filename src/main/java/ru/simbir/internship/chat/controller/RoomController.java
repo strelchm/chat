@@ -1,5 +1,6 @@
 package ru.simbir.internship.chat.controller;
 
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@Api("REST controller 4 chat room operations")
 @RequestMapping("/api/rooms")
 @Validated
 @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")

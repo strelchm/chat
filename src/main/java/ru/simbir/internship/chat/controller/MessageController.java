@@ -1,5 +1,6 @@
 package ru.simbir.internship.chat.controller;
 
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @RestController
+@Api("REST controller 4 message operations")
 @RequestMapping("/api")
 @Validated
 @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")

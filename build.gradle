@@ -35,6 +35,8 @@ dependencies {
 	implementation 'org.webjars:stomp-websocket:2.3.3'
 	implementation 'org.webjars:bootstrap:3.3.7'
 	implementation 'org.webjars:jquery:3.1.1-1'
+	implementation "io.springfox:springfox-boot-starter:3.0.0"
+	implementation "io.springfox:springfox-swagger-ui:2.9.2"
 	compileOnly 'org.projectlombok:lombok'
 	compile 'io.jsonwebtoken:jjwt-api:0.11.2'
 	runtime 'io.jsonwebtoken:jjwt-impl:0.11.2'
