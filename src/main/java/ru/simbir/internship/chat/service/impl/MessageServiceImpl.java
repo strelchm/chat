@@ -6,10 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.simbir.internship.chat.domain.Message;
-import ru.simbir.internship.chat.domain.UserAppRole;
-import ru.simbir.internship.chat.domain.UserRoom;
-import ru.simbir.internship.chat.domain.UserRoomRole;
+import ru.simbir.internship.chat.domain.*;
 import ru.simbir.internship.chat.dto.MessageDto;
 import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.exception.AccessDeniedException;
@@ -21,6 +18,7 @@ import ru.simbir.internship.chat.service.CheckRoomAccessService;
 import ru.simbir.internship.chat.service.MessageService;
 import ru.simbir.internship.chat.service.RoomService;
 import ru.simbir.internship.chat.service.UserService;
+import ru.simbir.internship.chat.service.bot.YouTubeBot;
 import ru.simbir.internship.chat.util.MappingUtil;
 
 import java.security.Principal;
@@ -34,14 +32,16 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
     private final MessageRepository messageRepository;
     private final RoomService roomService;
     private final UserService userService;
+    private final YouTubeBot youTubeBot;
 
     @Autowired
     public MessageServiceImpl(MessageRepository messageRepository, UserRoomRepository userRoomRepository,
-                              RoomService roomService, UserService userService) {
+                              RoomService roomService, UserService userService, YouTubeBot youTubeBot) {
         super(userRoomRepository);
         this.messageRepository = messageRepository;
         this.roomService = roomService;
         this.userService = userService;
+        this.youTubeBot = youTubeBot;
     }
 
     @Override
@@ -122,6 +122,12 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
         if (messageDto == null || roomID == null || userDto == null) {
             throw new BadRequestException();
         }
+        if (messageDto.getRoomId() == null) {
+            messageDto.setRoomId(roomID);
+        }
+        if (!messageDto.getRoomId().equals(roomID)) {
+            throw new BadRequestException();
+        }
         if (messageDto.getId() == null) {
             if (messageDto.getUserId() == null) {
                 messageDto.setUserId(userDto.getId());
@@ -129,21 +135,27 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
             if (!messageDto.getUserId().equals(userDto.getId())) {
                 throw new BadRequestException();
             }
-            if (messageDto.getRoomId() == null) {
-                messageDto.setRoomId(roomID);
-            }
-            if (!messageDto.getRoomId().equals(roomID)) {
-                throw new BadRequestException();
-            }
             return save(messageDto, roomID, userDto);
         } else {
-            if (messageDto.getRoomId() == null) {
-                messageDto.setRoomId(roomID);
-            }
-            if (!messageDto.getRoomId().equals(roomID)) {
-                throw new BadRequestException();
-            }
             return edit(messageDto, roomID, userDto);
         }
+    }
+
+    @Override
+    public List<MessageDto> processBot(MessageDto messageDto, UserDto userDto) {
+        if (messageDto == null || userDto == null) {
+            throw new BadRequestException();
+        }
+        if (!roomService.getRoomById(messageDto.getRoomId()).getType().equals(RoomType.BOT)) {
+            throw new BadRequestException();
+        }
+        String command = messageDto.getText();
+        if (command.matches(BotCommand.YBOT_CHANNEL_INFO.getTitle())) {
+            return youTubeBot.channelInfo(command);
+        }
+        if (command.matches(BotCommand.YBOT_HELP.getTitle())) {
+            return youTubeBot.help();
+        }
+        return null;
     }
 }

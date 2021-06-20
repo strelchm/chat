@@ -27,6 +27,7 @@ insert into users values ('00000000-0000-0000-0000-000000000013', 'client#13', '
 insert into users values ('00000000-0000-0000-0000-000000000014', 'client#14', '$2a$10$aQJeMUNceM4sZi3COv3QoOXb5e6tO5SxsD2qK7fLc5bV6LoOaxxGS', 'CLIENT', 'ACTIVE', '2021-06-06 00:00:00.000', '2021-06-06 00:00:00.000');
 insert into users values ('00000000-0000-0000-0000-000000000015', 'client#15', '$2a$10$neIiuBpwtcfXGbyYpR9jH.9rtcGrZze/uq1eiNmCoV3v7ZJkMm4qa', 'CLIENT', 'ACTIVE', '2021-06-06 00:00:00.000', '2021-06-06 00:00:00.000');
 
+insert into room values ('00000000-0000-0000-0000-000000000000', 'chat bot', 'BOT', '2021-06-06 00:00:00.000', '2021-06-06 00:00:00.000');
 insert into room values ('00000000-0000-0000-0000-000000000001', 'room#1', 'PUBLIC', '2021-06-06 00:00:00.000', '2021-06-06 00:00:00.000');
 insert into room values ('00000000-0000-0000-0000-000000000002', 'room#2', 'PUBLIC', '2021-06-06 00:00:00.000', '2021-06-06 00:00:00.000');
 insert into room values ('00000000-0000-0000-0000-000000000003', 'room#3', 'PRIVATE', '2021-06-06 00:00:00.000', '2021-06-06 00:00:00.000');
