@@ -22,9 +22,7 @@ import ru.simbir.internship.chat.service.bot.BotCommand;
 import ru.simbir.internship.chat.service.bot.YouTubeBot;
 import ru.simbir.internship.chat.util.MappingUtil;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -156,6 +154,9 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
         if (command.matches(BotCommand.YBOT_HELP.getRegex())) {
             return youTubeBot.help();
         }
-        return null;
+        if (command.matches(BotCommand.YBOT_VIDEO_COMMENT_RANDOM.getRegex())) {
+            return youTubeBot.videoCommentRandom(command);
+        }
+        return Collections.singletonList(new MessageDto("Команда не распознана.", new Date()));
     }
 }

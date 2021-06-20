@@ -1,6 +1,5 @@
 package ru.simbir.internship.chat.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -10,7 +9,6 @@ import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.service.JwtTokenService;
 import ru.simbir.internship.chat.service.MessageService;
-import ru.simbir.internship.chat.service.bot.YouTubeBot;
 
 import java.util.List;
 import java.util.UUID;
