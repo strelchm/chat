@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import ru.simbir.internship.chat.dto.MessageDto;
 import ru.simbir.internship.chat.dto.UserDto;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -16,11 +17,13 @@ public interface MessageService {
 
     UUID add(MessageDto dto, UUID chatRoomId, UserDto userDto);
 
-    MessageDto save(MessageDto dto);
+    MessageDto save(MessageDto dto, UUID roomID, UserDto userDto);
 
-    Set<MessageDto> findAll(UUID roomId);
+    Set<MessageDto> findAll(UUID roomId, UUID userID );
 
     MessageDto edit(MessageDto dto, UUID chatRoomId, UserDto userDto);
 
     void delete(UUID messageId, UUID chatRoomId, UserDto userDto);
+
+    MessageDto process(MessageDto dto, UUID roomID, UserDto userDto);
 }
