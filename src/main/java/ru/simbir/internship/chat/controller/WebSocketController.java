@@ -26,7 +26,7 @@ public class WebSocketController {
     }
 
     @MessageMapping("/room/{roomId}")
-    @SendTo("/room/{roomId}")
+    @SendTo("/chat/room/{roomId}")
     public MessageDto processMessage(@Header(name = "token") String token,
                                      @DestinationVariable UUID roomId,
                                      MessageDto dto) {
