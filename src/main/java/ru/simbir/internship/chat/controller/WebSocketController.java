@@ -24,8 +24,8 @@ public class WebSocketController {
         this.jwtTokenService = jwtTokenService;
     }
 
-    @MessageMapping("/{roomId}")
-    @SendTo("/topic/{roomId}")
+    @MessageMapping("/room/{roomId}")
+    @SendTo("/chat/room/{roomId}")
     public MessageDto processMessage(@Header(name = "token") String token,
                                      @DestinationVariable UUID roomId,
                                      MessageDto dto) {

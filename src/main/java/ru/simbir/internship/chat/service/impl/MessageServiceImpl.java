@@ -45,9 +45,9 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
     }
 
     @Override
-    public Page<MessageDto> getAll(Pageable pageable, UUID chatRoomId, UserDto userDto) { // todo Pageable / Criteria??
+    public Page<MessageDto> getAll(Pageable pageable, UUID chatRoomId, UserDto userDto) {
         checkRoomAccess(userDto, chatRoomId);
-        return messageRepository.findAll(pageable).map(MappingUtil::mapToMessageDto);
+        return messageRepository.findAllByRoom_IdOrderByCreatedDesc(pageable, chatRoomId).map(MappingUtil::mapToMessageDto);
     }
 
     @Override

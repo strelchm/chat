@@ -1,5 +1,6 @@
 package ru.simbir.internship.chat.controller;
 
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
@@ -18,6 +19,7 @@ import ru.simbir.internship.chat.service.UserService;
 import javax.validation.constraints.NotNull;
 
 @RestController
+@Api("REST controller 4 log in")
 @RequestMapping("/api/login")
 @Validated
 public class LoginController extends ParentController {
