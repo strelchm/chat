@@ -28,7 +28,7 @@ public class ParentController {
     static final String NULL_PATCH_OBJECT_REQUEST_EXCEPTION = "Instance that must be patch not found in request body";
     static final int DEFAULT_PAGE_SIZE = 100;
 
-    private final UserService userService;
+    protected final UserService userService;
 
     public ParentController(UserService userService) {
         this.userService = userService;
@@ -40,7 +40,7 @@ public class ParentController {
         return getResponseFromException(ex);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
+    @ExceptionHandler({AccessDeniedException.class, org.springframework.security.access.AccessDeniedException.class})
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public HashMap<String, String> handleAccessDeniedExceptions(Exception ex) {
         return getResponseFromException(ex);
@@ -88,4 +88,5 @@ public class ParentController {
             return new UserContext(userService.getUserByLogin(((User) authentication.getPrincipal()).getUsername()));
         }
     }
+
 }

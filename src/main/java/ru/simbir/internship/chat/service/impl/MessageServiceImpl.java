@@ -3,7 +3,6 @@ package ru.simbir.internship.chat.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +12,7 @@ import ru.simbir.internship.chat.domain.UserRoom;
 import ru.simbir.internship.chat.domain.UserRoomRole;
 import ru.simbir.internship.chat.dto.MessageDto;
 import ru.simbir.internship.chat.dto.UserDto;
+import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.repository.MessageRepository;
@@ -23,6 +23,7 @@ import ru.simbir.internship.chat.service.RoomService;
 import ru.simbir.internship.chat.service.UserService;
 import ru.simbir.internship.chat.util.MappingUtil;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -101,7 +102,8 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
     }
 
     @Override
-    public MessageDto save(MessageDto dto) {
+    public MessageDto save(MessageDto dto, UUID roomID, UserDto userDto) {
+        checkRoomAccess(userDto, roomID, UserRoomRole.BLOCKED_USER);
         Message message = MappingUtil.mapToMessageEntity(dto);
         message.setUser(userService.getUserById(dto.getUserId()));
         message.setRoom(roomService.getRoomById(dto.getRoomId()));
@@ -110,7 +112,38 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
 
     @Override
     @Transactional(propagation= Propagation.REQUIRED, readOnly=true, noRollbackFor=Exception.class)
-    public Set<MessageDto> findAll(UUID roomId) {
+    public Set<MessageDto> findAll(UUID roomId, UUID userId) {
+        checkRoomAccess(userService.getById(userId), roomId);
         return roomService.getRoomById(roomId).getMessages().stream().map(MappingUtil::mapToMessageDto).collect(Collectors.toSet());
+    }
+
+    @Override
+    public MessageDto process(MessageDto messageDto, UUID roomID, UserDto userDto) {
+        if (messageDto == null || roomID == null || userDto == null) {
+            throw new BadRequestException();
+        }
+        if (messageDto.getId() == null) {
+            if (messageDto.getUserId() == null) {
+                messageDto.setUserId(userDto.getId());
+            }
+            if (!messageDto.getUserId().equals(userDto.getId())) {
+                throw new BadRequestException();
+            }
+            if (messageDto.getRoomId() == null) {
+                messageDto.setRoomId(roomID);
+            }
+            if (!messageDto.getRoomId().equals(roomID)) {
+                throw new BadRequestException();
+            }
+            return save(messageDto, roomID, userDto);
+        } else {
+            if (messageDto.getRoomId() == null) {
+                messageDto.setRoomId(roomID);
+            }
+            if (!messageDto.getRoomId().equals(roomID)) {
+                throw new BadRequestException();
+            }
+            return edit(messageDto, roomID, userDto);
+        }
     }
 }
