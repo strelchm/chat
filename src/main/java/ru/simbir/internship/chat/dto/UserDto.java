@@ -8,7 +8,6 @@ import ru.simbir.internship.chat.domain.UserAppRole;
 import ru.simbir.internship.chat.domain.UserStatus;
 
 import java.util.Date;
-import java.util.Set;
 import java.util.UUID;
 
 @Data

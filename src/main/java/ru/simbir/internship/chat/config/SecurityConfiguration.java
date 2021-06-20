@@ -17,7 +17,7 @@ import ru.simbir.internship.chat.service.JwtTokenService;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    private JwtTokenService tokenService;
+    private final JwtTokenService tokenService;
 
     @Autowired
     public SecurityConfiguration(JwtTokenService tokenService) {

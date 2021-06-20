@@ -5,8 +5,6 @@ import org.springframework.data.domain.Pageable;
 import ru.simbir.internship.chat.dto.MessageDto;
 import ru.simbir.internship.chat.dto.UserDto;
 
-import java.security.Principal;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 

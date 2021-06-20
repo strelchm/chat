@@ -3,12 +3,10 @@ package ru.simbir.internship.chat.controller;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.context.request.ServletWebRequest;
 import ru.simbir.internship.chat.dto.UserContext;
 import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.exception.AccessDeniedException;
@@ -74,19 +72,12 @@ public class ParentController {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public HashMap<String, String> handleIntervalServerExceptions(Exception ex) {
-        HashMap<String, String> response = getResponseFromException(ex);
-        return response;
+        return getResponseFromException(ex);
     }
 
     @ModelAttribute(USER_CONTEXT)
-    public UserContext getControllerContext(ServletWebRequest webRequest, Authentication authentication) {
-        if (authentication == null) return null;
-        if (authentication.getPrincipal() instanceof UserDto) {
-            Optional<UUID> userId = Optional.of(authentication).map(auth -> (((UserDto) auth.getPrincipal()).getId()));
-            return new UserContext(userId.map(userService::getById));
-        } else {
-            return new UserContext(userService.getUserByLogin(((User) authentication.getPrincipal()).getUsername()));
-        }
+    public UserContext getControllerContext(Authentication authentication) {
+        Optional<UUID> userId = Optional.ofNullable(authentication).map(auth -> (((UserDto) auth.getPrincipal()).getId()));
+        return new UserContext(userId.map(userService::getById));
     }
-
 }

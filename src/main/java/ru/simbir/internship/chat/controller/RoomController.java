@@ -9,6 +9,7 @@ import ru.simbir.internship.chat.dto.IdDto;
 import ru.simbir.internship.chat.dto.RoomDto;
 import ru.simbir.internship.chat.dto.UserContext;
 import ru.simbir.internship.chat.dto.WrapperDto;
+import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.service.RoomService;
 import ru.simbir.internship.chat.service.UserService;
@@ -32,25 +33,25 @@ public class RoomController extends ParentController {
 
     @GetMapping
     public List<RoomDto> getAllRooms(@ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        return roomService.getAll(userContext.getUser().get());
+        return roomService.getAll(userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 
     @GetMapping("/own")
     public List<RoomDto> getAllRoomsByUser(@ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        return roomService.getAllByUser(userContext.getUser().get());
+        return roomService.getAllByUser(userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 
     @GetMapping("/{id}")
     public RoomDto getRoomById(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                                @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        return roomService.getById(id, userContext.getUser().get());
+        return roomService.getById(id, userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
     public IdDto createRoom(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody RoomDto dto,
                             @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        return new IdDto(roomService.add(dto, userContext.getUser().get()));
+        return new IdDto(roomService.add(dto, userContext.getUser().orElseThrow(AccessDeniedException::new)));
     }
 
     @PutMapping("/{id}")
@@ -62,7 +63,7 @@ public class RoomController extends ParentController {
         } else if (!id.equals(dto.getId())) {
             throw new BadRequestException();
         }
-        return roomService.edit(dto, userContext.getUser().get());
+        return roomService.edit(dto, userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 
     @PatchMapping("/{id}")
@@ -74,17 +75,13 @@ public class RoomController extends ParentController {
         } else if (!id.equals(dto.getId())) {
             throw new BadRequestException();
         }
-
-        RoomDto roomDto = roomService.getById(id, userContext.getUser().get());
-
+        RoomDto roomDto = roomService.getById(id, userContext.getUser().orElseThrow(AccessDeniedException::new));
         if (!roomDto.getName().equals(dto.getName())) {
             roomDto.setName(dto.getName());
         }
-
         if (!roomDto.getType().equals(dto.getType())) {
             roomDto.setType(dto.getType());
         }
-
         return roomService.edit(roomDto, userContext.getUser().get());
     }
 
@@ -92,7 +89,7 @@ public class RoomController extends ParentController {
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteRoom(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                            @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        roomService.delete(id, userContext.getUser().get());
+        roomService.delete(id, userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 
     @PostMapping("/{id}/members")
@@ -100,7 +97,7 @@ public class RoomController extends ParentController {
     public void addMembers(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody WrapperDto<UUID[]> memberId,
                            @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                            @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        roomService.addMembers(id, userContext.getUser().get(), memberId.getValue());
+        roomService.addMembers(id, userContext.getUser().orElseThrow(AccessDeniedException::new), memberId.getValue());
     }
 
     @DeleteMapping("/{id}/members/{memberId}")
@@ -108,7 +105,7 @@ public class RoomController extends ParentController {
     public void deleteMembers(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @PathVariable UUID memberId,
                            @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                            @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        roomService.removeMembers(id, userContext.getUser().get(), memberId);
+        roomService.removeMembers(id, userContext.getUser().orElseThrow(AccessDeniedException::new), memberId);
     }
 
     @PostMapping("/{id}/moderators")
@@ -116,7 +113,7 @@ public class RoomController extends ParentController {
     public void addModerator(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @RequestBody IdDto moderatorId,
                            @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                            @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        roomService.moderatorAdd(id, userContext.getUser().get(), moderatorId.getId());
+        roomService.moderatorAdd(id, userContext.getUser().orElseThrow(AccessDeniedException::new), moderatorId.getId());
     }
 
     @DeleteMapping("/{id}/moderators/{moderatorId}")
@@ -124,7 +121,7 @@ public class RoomController extends ParentController {
     public void deleteModerator(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID moderatorId,
                              @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                              @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        roomService.moderatorRemove(id, userContext.getUser().get(), moderatorId);
+        roomService.moderatorRemove(id, userContext.getUser().orElseThrow(AccessDeniedException::new), moderatorId);
     }
 
 }
