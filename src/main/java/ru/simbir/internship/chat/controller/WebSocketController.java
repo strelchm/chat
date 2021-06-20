@@ -10,8 +10,12 @@ import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.service.JwtTokenService;
 import ru.simbir.internship.chat.service.MessageService;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 public class WebSocketController {
@@ -46,7 +50,8 @@ public class WebSocketController {
         if (userDto.getUserAppRole() == null) {
             throw new AccessDeniedException();
         }
-        return messageService.processBot(dto, userDto);
+        return Stream.concat(Stream.of(dto), messageService.processBot(dto, userDto).stream())
+                .collect(Collectors.toList());
     }
 }
 
