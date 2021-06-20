@@ -89,12 +89,4 @@ public class ParentController {
         }
     }
 
-    public UserDto getUserDto(Authentication authentication){
-        if (authentication == null) return null;
-        if (authentication.getPrincipal() instanceof UserDto) {
-            return userService.getById(((UserDto) authentication.getPrincipal()).getId());
-        } else {
-            return userService.getUserByLogin(((User) authentication.getPrincipal()).getUsername()).orElse(null);
-        }
-    }
 }

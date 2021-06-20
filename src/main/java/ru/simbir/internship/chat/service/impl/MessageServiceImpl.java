@@ -126,13 +126,13 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
             if (messageDto.getUserId() == null) {
                 messageDto.setUserId(userDto.getId());
             }
-            if (messageDto.getUserId() != userDto.getId()) {
+            if (!messageDto.getUserId().equals(userDto.getId())) {
                 throw new BadRequestException();
             }
             if (messageDto.getRoomId() == null) {
                 messageDto.setRoomId(roomID);
             }
-            if (messageDto.getRoomId() != roomID) {
+            if (!messageDto.getRoomId().equals(roomID)) {
                 throw new BadRequestException();
             }
             return save(messageDto, roomID, userDto);
@@ -140,7 +140,7 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
             if (messageDto.getRoomId() == null) {
                 messageDto.setRoomId(roomID);
             }
-            if (messageDto.getRoomId() != roomID) {
+            if (!messageDto.getRoomId().equals(roomID)) {
                 throw new BadRequestException();
             }
             return edit(messageDto, roomID, userDto);

@@ -32,8 +32,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .mvcMatchers( "/api/login", "/api/login/*","/api/users", "/api/users/*").permitAll() // todo
-                .mvcMatchers("/ws/**").hasAnyRole("ADMIN", "CLIENT")
-                .mvcMatchers("/*", "/webjars/**").permitAll()
+                .mvcMatchers("/*","/ws/**", "/admin", "/client").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(tokenService),
