@@ -13,30 +13,28 @@ import ru.simbir.internship.chat.service.MessageService;
 import java.util.UUID;
 
 @Controller
-public class WebSocketController{
+public class WebSocketController {
 
     private final JwtTokenService jwtTokenService;
-    private final SimpMessagingTemplate simpMessagingTemplate;
     private final MessageService messageService;
 
     @Autowired
-    public WebSocketController(SimpMessagingTemplate simpMessagingTemplate, MessageService messageService,
+    public WebSocketController(MessageService messageService,
                                JwtTokenService jwtTokenService) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
         this.messageService = messageService;
         this.jwtTokenService = jwtTokenService;
     }
 
     @MessageMapping("/{roomId}")
     @SendTo("/topic/{roomId}")
-    public MessageDto processMessage(@Header(name="token") String token,
-                               @DestinationVariable UUID roomId,
-                               MessageDto dto){
+    public MessageDto processMessage(@Header(name = "token") String token,
+                                     @DestinationVariable UUID roomId,
+                                     MessageDto dto) {
         UserDto userDto = jwtTokenService.parseToken(token);
         if (userDto.getUserAppRole() == null) {
             throw new AccessDeniedException();
         }
         return messageService.process(dto, roomId, userDto);
     }
-
 }
+
