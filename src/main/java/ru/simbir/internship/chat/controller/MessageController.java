@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.simbir.internship.chat.dto.IdDto;
 import ru.simbir.internship.chat.dto.MessageDto;
 import ru.simbir.internship.chat.dto.UserContext;
+import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.service.MessageService;
 import ru.simbir.internship.chat.service.UserService;
@@ -26,6 +27,7 @@ import java.util.UUID;
 @Validated
 @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")
 public class MessageController extends ParentController {
+
     private final MessageService messageService;
 
     @Autowired
@@ -40,14 +42,14 @@ public class MessageController extends ParentController {
                                            @ModelAttribute(USER_CONTEXT) UserContext userContext,
                                            @PageableDefault(size = DEFAULT_PAGE_SIZE, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return messageService.getAll(pageable, roomId, userContext.getUser().get());
+        return messageService.getAll(pageable, roomId, userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 
     @GetMapping("/rooms/{roomId}/messages/{id}")
     public MessageDto getMessageById(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                                      @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
                                      @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        return messageService.getById(id, roomId, userContext.getUser().get());
+        return messageService.getById(id, roomId, userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 
     @PostMapping("/rooms/{roomId}/messages")
@@ -55,7 +57,7 @@ public class MessageController extends ParentController {
     public IdDto createMessage(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody MessageDto dto,
                                           @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
                                           @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        return new IdDto(messageService.add(dto, roomId, userContext.getUser().get()));
+        return new IdDto(messageService.add(dto, roomId, userContext.getUser().orElseThrow(AccessDeniedException::new)));
     }
 
     @PutMapping("/rooms/{roomId}/messages/{id}")
@@ -68,7 +70,7 @@ public class MessageController extends ParentController {
         } else if (!id.equals(dto.getId())) {
             throw new BadRequestException();
         }
-        return messageService.edit(dto, roomId, userContext.getUser().get());
+        return messageService.edit(dto, roomId, userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 
     @DeleteMapping("/rooms/{roomId}/messages/{id}")
@@ -76,6 +78,6 @@ public class MessageController extends ParentController {
     public void deleteMessage(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                               @NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID roomId,
                               @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        messageService.delete(id, roomId, userContext.getUser().get());
+        messageService.delete(id, roomId, userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 }

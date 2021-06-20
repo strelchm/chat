@@ -5,12 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.simbir.internship.chat.domain.UserRoomRole;
 
-
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
-
 
 @Data
 @NoArgsConstructor

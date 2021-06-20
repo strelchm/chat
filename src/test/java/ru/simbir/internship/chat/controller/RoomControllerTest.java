@@ -3,43 +3,48 @@ package ru.simbir.internship.chat.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import ru.simbir.internship.chat.domain.RoomType;
+import ru.simbir.internship.chat.domain.User;
 import ru.simbir.internship.chat.dto.IdDto;
 import ru.simbir.internship.chat.dto.RoomDto;
 import ru.simbir.internship.chat.dto.WrapperDto;
+import ru.simbir.internship.chat.service.JwtTokenService;
+import ru.simbir.internship.chat.service.UserService;
 
 import java.util.UUID;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class RoomControllerTest {
 
     static final String PREFIX = "/api/rooms";
 
     @Autowired
-    private ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
     @Autowired
-    private WebApplicationContext context;
+    WebApplicationContext context;
 
-    private MockMvc mvc;
+    @Autowired
+    JwtTokenService jwtTokenService;
+
+    @Autowired
+    UserService userService;
+
+    MockMvc mvc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
@@ -47,7 +52,7 @@ public class RoomControllerTest {
     }
 
     @Test
-    public void whenAnonymousThenReturn403() throws Exception {
+    void whenAnonymousThenReturn403() throws Exception {
         mvc.perform(MockMvcRequestBuilders
                 .get(PREFIX)
                 .characterEncoding("utf-8")
@@ -56,42 +61,46 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
     public void whenAuthRequestThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         mvc.perform(MockMvcRequestBuilders
                 .get(PREFIX)
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenAuthRequestAtOwnThenReturn200() throws Exception {
+    void whenAuthRequestAtOwnThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         mvc.perform(MockMvcRequestBuilders
                 .get(PREFIX.concat("/own"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenGetByIdRequestThenReturn200() throws Exception {
+    void whenGetByIdRequestThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         mvc.perform(MockMvcRequestBuilders
                 .get(PREFIX.concat("/00000000-0000-0000-0000-000000000001"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenPostRoomDtoThenReturn201() throws Exception {
+    void whenPostRoomDtoThenReturn201() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         RoomDto dto = new RoomDto();
         dto.setName("testRoom");
         dto.setType(RoomType.PUBLIC);
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .post(PREFIX)
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -99,14 +108,15 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#6", roles = {"CLIENT"})
-    public void whenPostByGlobalBlockedUserThenReturn403() throws Exception {
+    void whenPostByGlobalBlockedUserThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000006"));
         RoomDto dto = new RoomDto();
         dto.setName("testRoom2");
         dto.setType(RoomType.PUBLIC);
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .post(PREFIX)
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -114,8 +124,8 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenPutByOwnerThenReturn200() throws Exception {
+    void whenPutByOwnerThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         RoomDto dto = new RoomDto();
         dto.setId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         dto.setName("testRoom");
@@ -123,6 +133,7 @@ public class RoomControllerTest {
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .put(PREFIX.concat("/00000000-0000-0000-0000-000000000001"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -130,8 +141,8 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#2", roles = {"CLIENT"})
-    public void whenPutByUserThenReturn403() throws Exception {
+    void whenPutByUserThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000002"));
         RoomDto dto = new RoomDto();
         dto.setId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         dto.setName("testRoom");
@@ -139,6 +150,7 @@ public class RoomControllerTest {
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .put(PREFIX.concat("/00000000-0000-0000-0000-000000000001"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -146,8 +158,8 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#4", roles = {"CLIENT"})
-    public void whenPutByBlockedUserThenReturn403() throws Exception {
+    void whenPutByBlockedUserThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000004"));
         RoomDto dto = new RoomDto();
         dto.setId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         dto.setName("testRoom");
@@ -155,6 +167,7 @@ public class RoomControllerTest {
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .put(PREFIX.concat("/00000000-0000-0000-0000-000000000001"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -162,8 +175,8 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenPutByModeratorThenReturn403() throws Exception {
+    void whenPutByModeratorThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         RoomDto dto = new RoomDto();
         dto.setId(UUID.fromString("00000000-0000-0000-0000-000000000005"));
         dto.setName("testRoom");
@@ -171,6 +184,7 @@ public class RoomControllerTest {
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .put(PREFIX.concat("/00000000-0000-0000-0000-000000000005"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -178,14 +192,15 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenPatchByOwnerThenReturn200() throws Exception {
+    void whenPatchByOwnerThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         RoomDto dto = new RoomDto();
         dto.setName("testRoom2");
         dto.setType(RoomType.PUBLIC);
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .patch(PREFIX.concat("/00000000-0000-0000-0000-000000000001"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -193,14 +208,15 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#2", roles = {"CLIENT"})
-    public void whenPatchByUserThenReturn403() throws Exception {
+    void whenPatchByUserThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000002"));
         RoomDto dto = new RoomDto();
         dto.setName("testRoom2");
         dto.setType(RoomType.PUBLIC);
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .patch(PREFIX.concat("/00000000-0000-0000-0000-000000000001"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -208,14 +224,15 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#4", roles = {"CLIENT"})
-    public void whenPatchByBlockedUserThenReturn403() throws Exception {
+    void whenPatchByBlockedUserThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000004"));
         RoomDto dto = new RoomDto();
         dto.setName("testRoom2");
         dto.setType(RoomType.PUBLIC);
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .patch(PREFIX.concat("/00000000-0000-0000-0000-000000000001"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -223,14 +240,15 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenPatchByModeratorThenReturn403() throws Exception {
+    void whenPatchByModeratorThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         RoomDto dto = new RoomDto();
         dto.setName("testRoom2");
         dto.setType(RoomType.PUBLIC);
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .patch(PREFIX.concat("/00000000-0000-0000-0000-000000000005"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -238,53 +256,58 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#3", roles = {"CLIENT"})
-    public void whenDeleteByOwnerThenReturn204() throws Exception {
+    void whenDeleteByOwnerThenReturn204() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000003"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000003"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    @WithMockUser(username = "client#2", roles = {"CLIENT"})
-    public void whenDeleteByUserThenReturn403() throws Exception {
+    void whenDeleteByUserThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000002"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000001"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "client#4", roles = {"CLIENT"})
-    public void whenDeleteByBlockedUserThenReturn403() throws Exception {
+    void whenDeleteByBlockedUserThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000004"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000001"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenDeleteByModeratorThenReturn403() throws Exception {
+    void whenDeleteByModeratorThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000005"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenPostMemberThenReturn200() throws Exception {
+    void whenPostMemberThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         WrapperDto<UUID[]> dto = new WrapperDto<>();
         dto.setValue(new UUID[]{UUID.fromString("00000000-0000-0000-0000-000000000015")});
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .post(PREFIX.concat("/00000000-0000-0000-0000-000000000001/members"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -292,13 +315,14 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#4", roles = {"CLIENT"})
-    public void whenPostMemberByBlokedUserThenReturn403() throws Exception {
+    void whenPostMemberByBlokedUserThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000004"));
         WrapperDto<UUID[]> dto = new WrapperDto<>();
         dto.setValue(new UUID[]{UUID.fromString("00000000-0000-0000-0000-000000000015")});
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .post(PREFIX.concat("/00000000-0000-0000-0000-000000000001/members"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -306,53 +330,58 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenDeleteMemberByOwnerThenReturn204() throws Exception {
+    void whenDeleteMemberByOwnerThenReturn204() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000001/members/00000000-0000-0000-0000-000000000003"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    @WithMockUser(username = "client#2", roles = {"CLIENT"})
-    public void whenDeleteMemberByUserThenReturn403() throws Exception {
+    void whenDeleteMemberByUserThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000002"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000001/members/00000000-0000-0000-0000-000000000003"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "client#4", roles = {"CLIENT"})
-    public void whenDeleteMemberByBlockedUserThenReturn403() throws Exception {
+    void whenDeleteMemberByBlockedUserThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000004"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000001/members/00000000-0000-0000-0000-000000000003"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenDeleteMemberByModeratorThenReturn403() throws Exception {
+    void whenDeleteMemberByModeratorThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000005/members/00000000-0000-0000-0000-000000000002"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    public void whenPostModeratorThenReturn200() throws Exception {
+    void whenPostModeratorThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000000"));
         IdDto dto = new IdDto();
         dto.setId(UUID.fromString("00000000-0000-0000-0000-000000000014"));
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .post(PREFIX.concat("/00000000-0000-0000-0000-000000000002/moderators"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -360,23 +389,25 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    public void whenDeleteModeratorThenReturn204() throws Exception {
+    void whenDeleteModeratorThenReturn204() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000000"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000002/moderators/00000000-0000-0000-0000-000000000005"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenPostModeratorByClientThenReturn403() throws Exception {
+    void whenPostModeratorByClientThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         IdDto dto = new IdDto();
         dto.setId(UUID.fromString("00000000-0000-0000-0000-000000000014"));
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .post(PREFIX.concat("/00000000-0000-0000-0000-000000000002/moderators"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -384,13 +415,13 @@ public class RoomControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenDeleteModeratorByClentThenReturn403() throws Exception {
+    void whenDeleteModeratorByClentThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000002/moderators/00000000-0000-0000-0000-000000000005"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
-
 }
