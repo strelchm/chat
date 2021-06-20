@@ -28,11 +28,10 @@ public class WebSocketController extends ParentController{
         this.messageService = messageService;
     }
 
-    @SubscribeMapping("/user/{userId}/room/{roomId}")
+    @SubscribeMapping("/room/{roomId}")
     public void subscribe(@DestinationVariable UUID roomId,
                           @DestinationVariable UUID userId){
-        StringBuilder topic = new StringBuilder("/app/user/");
-        topic.append(userId).append("/room/").append(roomId);
+        StringBuilder topic = new StringBuilder("/chat").append("/room/").append(roomId);
         messageService.findAll(roomId)
                 .stream()
                 .sorted(Comparator.comparing(MessageDto::getCreated))
