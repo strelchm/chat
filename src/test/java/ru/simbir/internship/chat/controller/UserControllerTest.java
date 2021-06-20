@@ -3,41 +3,47 @@ package ru.simbir.internship.chat.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import ru.simbir.internship.chat.domain.User;
 import ru.simbir.internship.chat.domain.UserAppRole;
 import ru.simbir.internship.chat.domain.UserStatus;
 import ru.simbir.internship.chat.dto.UserDto;
+import ru.simbir.internship.chat.service.JwtTokenService;
+import ru.simbir.internship.chat.service.UserService;
 
+import java.util.UUID;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class UserControllerTest {
+class UserControllerTest {
 
-    private static final String PREFIX = "/api/users";
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    static final String PREFIX = "/api/users";
 
     @Autowired
-    private WebApplicationContext context;
+    ObjectMapper objectMapper;
 
-    private MockMvc mvc;
+    @Autowired
+    WebApplicationContext context;
+
+    @Autowired
+    JwtTokenService jwtTokenService;
+
+    @Autowired
+    UserService userService;
+
+    MockMvc mvc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
@@ -45,7 +51,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void whenAnonymousThenReturn403() throws Exception {
+    void whenAnonymousThenReturn403() throws Exception {
         mvc.perform(MockMvcRequestBuilders
                 .get(PREFIX)
                 .characterEncoding("utf-8")
@@ -54,26 +60,28 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenAuthRequestThenReturn200() throws Exception {
+    void whenAuthRequestThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         mvc.perform(MockMvcRequestBuilders
                 .get(PREFIX)
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenGetByIdRequestThenReturn200() throws Exception {
+    void whenGetByIdRequestThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         mvc.perform(MockMvcRequestBuilders
                 .get(PREFIX.concat("/00000000-0000-0000-0000-000000000001"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void whenPostDtoThenReturn201() throws Exception {
+    void whenPostDtoThenReturn201() throws Exception {
         UserDto dto = new UserDto();
         dto.setLogin("AAA");
         dto.setPassword("BBB");
@@ -89,8 +97,8 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#5", roles = {"CLIENT"})
-    public void whenClientPatchHimselfThenReturn200() throws Exception {
+    void whenClientPatchHimselfThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000005"));
         UserDto dto = new UserDto();
         dto.setLogin("client#5_");
         dto.setPassword("$2a$10$cEatgB3qYBISVXLftQq4P.rlhkQWRoOgBOSh38..FvePGU1tMAnNG");
@@ -99,6 +107,7 @@ public class UserControllerTest {
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .patch(PREFIX.concat("/00000000-0000-0000-0000-000000000005"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -106,8 +115,8 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#4", roles = {"CLIENT"})
-    public void whenClientPatchAnotherThenReturn403() throws Exception {
+    void whenClientPatchAnotherThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000004"));
         UserDto dto = new UserDto();
         dto.setLogin("client#5_");
         dto.setPassword("$2a$10$cEatgB3qYBISVXLftQq4P.rlhkQWRoOgBOSh38..FvePGU1tMAnNG");
@@ -116,6 +125,7 @@ public class UserControllerTest {
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .patch(PREFIX.concat("/00000000-0000-0000-0000-000000000005"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -123,8 +133,8 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    public void whenAdminPatchThenReturn200() throws Exception {
+    void whenAdminPatchThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000000"));
         UserDto dto = new UserDto();
         dto.setLogin("client#7");
         dto.setPassword("client#7");
@@ -133,6 +143,7 @@ public class UserControllerTest {
         String json = objectMapper.writeValueAsString(dto);
         mvc.perform(MockMvcRequestBuilders
                 .patch(PREFIX.concat("/00000000-0000-0000-0000-000000000007"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -140,67 +151,74 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "client#8", roles = {"CLIENT"})
-    public void whenClientDeleteHimselfThenReturn204() throws Exception {
+    void whenClientDeleteHimselfThenReturn204() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000008"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000008"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    @WithMockUser(username = "client#9", roles = {"CLIENT"})
-    public void whenClientDeleteAnotherThenReturn403() throws Exception {
+    void whenClientDeleteAnotherThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000009"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000010"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    public void whenAdminDeleteThenReturn204() throws Exception {
+    void whenAdminDeleteThenReturn204() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000000"));
         mvc.perform(MockMvcRequestBuilders
                 .delete(PREFIX.concat("/00000000-0000-0000-0000-000000000011"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .characterEncoding("utf-8")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenClientPostBlockThenReturn403() throws Exception {
+    void whenClientPostBlockThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         mvc.perform(MockMvcRequestBuilders
                 .post(PREFIX.concat("//00000000-0000-0000-0000-000000000001/block"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "client#1", roles = {"CLIENT"})
-    public void whenClientPostUnblockThenReturn403() throws Exception {
+    void whenClientPostUnblockThenReturn403() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         mvc.perform(MockMvcRequestBuilders
                 .post(PREFIX.concat("//00000000-0000-0000-0000-000000000001/unblock"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    public void whenAdminPostBlockThenReturn200() throws Exception {
+    void whenAdminPostBlockThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000000"));
         mvc.perform(MockMvcRequestBuilders
                 .post(PREFIX.concat("//00000000-0000-0000-0000-000000000001/block"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
-    public void whenAdminPostUnblockThenReturn200() throws Exception {
+    void whenAdminPostUnblockThenReturn200() throws Exception {
+        User user = userService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000000"));
         mvc.perform(MockMvcRequestBuilders
                 .post(PREFIX.concat("//00000000-0000-0000-0000-000000000001/unblock"))
+                .header("Authorization", "Bearer " + jwtTokenService.generateToken(user))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.simbir.internship.chat.dto.IdDto;
 import ru.simbir.internship.chat.dto.UserContext;
 import ru.simbir.internship.chat.dto.UserDto;
+import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.service.UserService;
 
@@ -53,36 +54,33 @@ public class UserController extends ParentController {
             throw new BadRequestException();
         }
         UserDto userDto = userService.getById(id);
-
         if (!userDto.getLogin().equals(dto.getLogin())) {
             userDto.setLogin(dto.getLogin());
         }
-
         if (!userDto.getStatus().equals(dto.getStatus())) {
             userDto.setStatus(dto.getStatus());
         }
-
-        return userService.edit(userDto, userContext.getUser().get());
+        return userService.edit(userDto, userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteUser(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                            @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        userService.delete(id, userContext.getUser().get());
+        userService.delete(id, userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 
     @PostMapping("/{id}/block")
     @ResponseStatus(value = HttpStatus.OK)
     public void blockUser(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                            @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        userService.blockUser(id, userContext.getUser().get());
+        userService.blockUser(id, userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 
     @PostMapping("/{id}/unblock")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void unblockUser(@NotNull(message = NULL_ID_REQUEST_EXCEPTION) @Validated @PathVariable UUID id,
                           @ModelAttribute(USER_CONTEXT) UserContext userContext) {
-        userService.unblockUser(id, userContext.getUser().get());
+        userService.unblockUser(id, userContext.getUser().orElseThrow(AccessDeniedException::new));
     }
 }
