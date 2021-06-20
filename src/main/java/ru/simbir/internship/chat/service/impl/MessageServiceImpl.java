@@ -18,10 +18,10 @@ import ru.simbir.internship.chat.service.CheckRoomAccessService;
 import ru.simbir.internship.chat.service.MessageService;
 import ru.simbir.internship.chat.service.RoomService;
 import ru.simbir.internship.chat.service.UserService;
+import ru.simbir.internship.chat.service.bot.BotCommand;
 import ru.simbir.internship.chat.service.bot.YouTubeBot;
 import ru.simbir.internship.chat.util.MappingUtil;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -150,10 +150,10 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
             throw new BadRequestException();
         }
         String command = messageDto.getText();
-        if (command.matches(BotCommand.YBOT_CHANNEL_INFO.getTitle())) {
+        if (command.matches(BotCommand.YBOT_CHANNEL_INFO.getRegex())) {
             return youTubeBot.channelInfo(command);
         }
-        if (command.matches(BotCommand.YBOT_HELP.getTitle())) {
+        if (command.matches(BotCommand.YBOT_HELP.getRegex())) {
             return youTubeBot.help();
         }
         return null;

@@ -1,8 +1,8 @@
 package ru.simbir.internship.chat.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.*;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import ru.simbir.internship.chat.dto.MessageDto;
@@ -10,6 +10,7 @@ import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.service.JwtTokenService;
 import ru.simbir.internship.chat.service.MessageService;
+import ru.simbir.internship.chat.service.bot.YouTubeBot;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,7 +43,7 @@ public class WebSocketController {
     @MessageMapping("/room/bot")
     @SendToUser("/chat/room/bot")
     public List<MessageDto> processBotMessage(@Header(name = "token") String token,
-                                              MessageDto dto) {
+                                              MessageDto dto)  {
         UserDto userDto = jwtTokenService.parseToken(token);
         if (userDto.getUserAppRole() == null) {
             throw new AccessDeniedException();
