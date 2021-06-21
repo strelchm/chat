@@ -21,4 +21,9 @@ public class MessageDto {
     private String text;
     private Date created;
     private Date updated;
+
+    public MessageDto(String text, Date created){
+        this.text = text;
+        this.created = created;
+    }
 }
