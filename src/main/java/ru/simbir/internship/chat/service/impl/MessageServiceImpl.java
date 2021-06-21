@@ -141,12 +141,7 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
 
     @Override
     public List<MessageDto> processBot(MessageDto messageDto, UserDto userDto) {
-        if (messageDto == null || userDto == null) {
-            throw new BadRequestException();
-        }
-        if (!roomService.getRoomById(messageDto.getRoomId()).getType().equals(RoomType.BOT)) {
-            throw new BadRequestException();
-        }
+        checkBotArgs(messageDto, userDto);
         String command = messageDto.getText();
         if (command.matches(BotCommand.YBOT_CHANNEL_INFO.getRegex())) {
             return youTubeBot.channelInfo(command);
@@ -157,6 +152,21 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
         if (command.matches(BotCommand.YBOT_VIDEO_COMMENT_RANDOM.getRegex())) {
             return youTubeBot.videoCommentRandom(command);
         }
-        return Collections.singletonList(new MessageDto("Команда не распознана.", new Date()));
+        return Collections.singletonList(youTubeBot.createMessageDto("Команда не распознана."));
+    }
+
+    private void checkBotArgs(MessageDto messageDto, UserDto userDto) {
+        if (messageDto == null || userDto == null) {
+            throw new BadRequestException();
+        }
+        if (!roomService.getRoomById(messageDto.getRoomId()).getType().equals(RoomType.BOT)) {
+            throw new BadRequestException();
+        }
+        if (!messageDto.getUserId().equals(userDto.getId())) {
+            throw new BadRequestException();
+        }
+        if (messageDto.getCreated() == null || messageDto.getCreated().after(new Date())){
+            throw new BadRequestException();
+        }
     }
 }

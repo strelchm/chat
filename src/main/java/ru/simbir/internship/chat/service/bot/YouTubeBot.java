@@ -12,4 +12,6 @@ public interface YouTubeBot {
     List<MessageDto> find(String command);
 
     List<MessageDto> help();
+
+    MessageDto createMessageDto(String text);
 }
