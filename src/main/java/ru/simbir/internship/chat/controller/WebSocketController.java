@@ -11,23 +11,26 @@ import ru.simbir.internship.chat.dto.MessageDto;
 import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.service.JwtTokenService;
-import ru.simbir.internship.chat.service.MessageService;
+import ru.simbir.internship.chat.service.WebSocketService;
 
 import java.util.Comparator;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static ru.simbir.internship.chat.service.bot.YouTubeBotImpl.BOT_ROOM_ID;
+
 @Controller
 public class WebSocketController {
 
     private final JwtTokenService jwtTokenService;
-    private final MessageService messageService;
+    private final WebSocketService webSocketService;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
+
     @Autowired
-    public WebSocketController(MessageService messageService,
+    public WebSocketController(WebSocketService webSocketService,
                                JwtTokenService jwtTokenService, SimpMessagingTemplate simpMessagingTemplate) {
-        this.messageService = messageService;
+        this.webSocketService = webSocketService;
         this.jwtTokenService = jwtTokenService;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
@@ -41,7 +44,7 @@ public class WebSocketController {
         if (userDto.getUserAppRole() == null) {
             throw new AccessDeniedException();
         }
-        return messageService.process(dto, roomId, userDto);
+        return webSocketService.process(dto, roomId, userDto);
     }
 
     @MessageMapping("/room/00000000-0000-0000-0000-000000000000")
@@ -53,10 +56,13 @@ public class WebSocketController {
             throw new AccessDeniedException();
         }
         String sessionId = headerAccessor.getSessionId();
-        Stream.concat(Stream.of(dto), messageService.processBot(dto, userDto).stream())
+        Stream.concat(
+                Stream.of(webSocketService.process(dto, BOT_ROOM_ID, userDto)),
+                webSocketService.processBot(dto).stream())
                 .sorted(Comparator.comparing(MessageDto::getCreated))
                 .forEach(m -> simpMessagingTemplate.convertAndSendToUser(
-                        sessionId, "/chat/room/00000000-0000-0000-0000-000000000000", m, createMessageHeaders(sessionId)));
+                        sessionId, "/chat/room/00000000-0000-0000-0000-000000000000", m,
+                        createMessageHeaders(sessionId)));
     }
 
     private MessageHeaders createMessageHeaders(String sessionId) {

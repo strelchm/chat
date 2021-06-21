@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplate;
 import ru.simbir.internship.chat.dto.MessageDto;
+import ru.simbir.internship.chat.service.MessageService;
+import ru.simbir.internship.chat.service.UserService;
 
 import java.net.URI;
 import java.util.*;
@@ -18,17 +20,26 @@ import java.util.regex.Pattern;
 
 @Service
 public class YouTubeBotImpl implements YouTubeBot {
+    public static final UUID BOT_ROOM_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    public static final UUID BOT_USER_ID = UUID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
     @Value("${chat.google-api-key}")
     private String key;
 
     private final Logger logger = Logger.getLogger(YouTubeBotImpl.class.getName());
     private final String prefix = "https://www.googleapis.com/youtube/v3/";
     private final RestTemplate restTemplate = new RestTemplate();
+
+
     private final ObjectMapper objectMapper;
+    private final MessageService messageService;
+    private final UserService userService;
 
     @Autowired
-    public YouTubeBotImpl(ObjectMapper objectMapper) {
+    public YouTubeBotImpl(ObjectMapper objectMapper, MessageService messageService, UserService userService) {
         this.objectMapper = objectMapper;
+        this.messageService = messageService;
+        this.userService = userService;
     }
 
     @Override
@@ -165,10 +176,9 @@ public class YouTubeBotImpl implements YouTubeBot {
     @Override
     public MessageDto createMessageDto(String text){
         MessageDto dto = new MessageDto();
-        dto.setRoomId(UUID.fromString("00000000-0000-0000-0000-000000000000"));
-        dto.setUserId(UUID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff"));
-        dto.setCreated(new Date());
+        dto.setRoomId(BOT_ROOM_ID);
+        dto.setUserId(BOT_USER_ID);
         dto.setText(text);
-        return dto;
+        return messageService.save(dto, BOT_ROOM_ID, userService.getById(BOT_USER_ID));
     }
 }
