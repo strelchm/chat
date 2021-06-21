@@ -55,9 +55,6 @@ public class WebSocketServiceImpl implements WebSocketService {
 
     @Override
     public List<MessageDto> processBot(MessageDto messageDto) {
-        if (!roomService.getRoomById(messageDto.getRoomId()).getType().equals(RoomType.BOT)) {
-            throw new BadRequestException();
-        }
         String command = messageDto.getText();
         if (command.matches(BotCommand.YBOT_CHANNEL_INFO.getRegex())) {
             return youTubeBot.channelInfo(command);
