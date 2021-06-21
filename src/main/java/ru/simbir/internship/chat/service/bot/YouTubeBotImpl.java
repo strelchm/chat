@@ -88,10 +88,38 @@ public class YouTubeBotImpl implements YouTubeBot {
         }
     }
 
-    //todo
     @Override
     public List<MessageDto> find(String command) {
-        return null;
+        try {
+            int bias = 15; //сколько пропускать символов до начала названия канала
+            String separator = "||"; //разделитель имён канала и ролика
+            String[] data = command.split(Pattern.quote(separator));
+            if (data.length != 2) {
+                logger.severe("Unexpected command");
+                return Collections.singletonList(createMessageDto("Команда не распознана."));
+            }
+            String channelName = data[0].substring(bias);
+            String videoName = data[1];
+            char param = command.charAt(bias-2);
+            String videoId = getVideoId(videoName, getChannelId(channelName));
+            Map<String, String> videoInfo = getVideoInfo(videoId);
+            switch (param) {
+                case 'k':
+                    return Collections.singletonList(createMessageDto(createVideoUrl(videoId)));
+                case 'v':
+                    return Collections.singletonList(
+                            createMessageDto("Количество просмотров: " + videoInfo.get("viewCount")));
+                case 'l':
+                    return Collections.singletonList(
+                            createMessageDto("Количество лайков: " + videoInfo.get("likeCount")));
+                default:
+                    return Collections.singletonList(createMessageDto("Команда не распознана."));
+            }
+        } catch (JsonProcessingException e) {
+            logger.severe(e.getMessage());
+            e.printStackTrace();
+            return Collections.singletonList(createMessageDto("Ошибка при выполнении запроса."));
+        }
     }
 
     @Override
@@ -113,7 +141,7 @@ public class YouTubeBotImpl implements YouTubeBot {
         URI uri = uriTemplate.expand(prefix, channelName, key);
         ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
         JsonNode root = objectMapper.readTree(response.getBody());
-        HashMap<String, String> result = new HashMap<>(2);
+        Map<String, String> result = new HashMap<>(2);
         result.put("channelId", root.path("items").get(0).path("id").path("channelId").textValue());
         result.put("title", root.path("items").get(0).path("snippet").path("title").textValue());
         return result;
@@ -150,7 +178,7 @@ public class YouTubeBotImpl implements YouTubeBot {
         return root.path("items").get(0).path("id").path("videoId").textValue();
     }
 
-    //Некорректно для видео с числом комментариев больше 100
+    //Некорректно для видео с числом узловых комментариев больше 100
     private String getRandomCommentID(String videoId) throws JsonProcessingException {
         UriTemplate uriTemplate = new UriTemplate(
                 "{PREFIX}commentThreads?part=id&&maxResults=100&videoId={VIDEO_ID}&key={KEY}");
@@ -166,15 +194,27 @@ public class YouTubeBotImpl implements YouTubeBot {
         URI uri = uriTemplate.expand(prefix, commentId, key);
         ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
         JsonNode root = objectMapper.readTree(response.getBody());
-        HashMap<String, String> result = new HashMap<>(2);
+        Map<String, String> result = new HashMap<>(2);
         result.put("authorDisplayName",
                 root.path("items").get(0).path("snippet").path("authorDisplayName").textValue());
         result.put("textDisplay", root.path("items").get(0).path("snippet").path("textDisplay").textValue());
         return result;
     }
 
+    private Map<String, String> getVideoInfo(String videoId) throws JsonProcessingException {
+        UriTemplate uriTemplate = new UriTemplate(
+                "{PREFIX}videos?part=statistics&id={VIDEO_ID}&key={KEY}");
+        URI uri = uriTemplate.expand(prefix, videoId, key);
+        ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+        JsonNode root = objectMapper.readTree(response.getBody());
+        Map<String, String> result = new HashMap<>(2);
+        result.put("viewCount", root.path("items").get(0).path("statistics").path("viewCount").textValue());
+        result.put("likeCount", root.path("items").get(0).path("statistics").path("likeCount").textValue());
+        return result;
+    }
+
     @Override
-    public MessageDto createMessageDto(String text){
+    public MessageDto createMessageDto(String text) {
         MessageDto dto = new MessageDto();
         dto.setRoomId(BOT_ROOM_ID);
         dto.setUserId(BOT_USER_ID);

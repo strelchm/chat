@@ -65,6 +65,9 @@ public class WebSocketServiceImpl implements WebSocketService {
         if (command.matches(BotCommand.YBOT_VIDEO_COMMENT_RANDOM.getRegex())) {
             return youTubeBot.videoCommentRandom(command);
         }
+        if (command.matches(BotCommand.YBOT_FIND.getRegex())) {
+            return youTubeBot.find(command);
+        }
         return Collections.singletonList(youTubeBot.createMessageDto("Команда не распознана."));
     }
 }
