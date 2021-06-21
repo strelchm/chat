@@ -15,7 +15,6 @@ import java.net.URI;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class YouTubeBotImpl implements YouTubeBot {
@@ -39,15 +38,17 @@ public class YouTubeBotImpl implements YouTubeBot {
             int numberOfLinks = 5; //количество сслылок в ответе
             List<MessageDto> result = new ArrayList<>();
             Map<String, String> channelInfo = getChannelInfo(command.substring(bias));
-            result.add(new MessageDto(channelInfo.get("title"), new Date()));
+            StringBuilder links = new StringBuilder();
             getLastVideoUrls(channelInfo.get("channelId"), numberOfLinks).stream()
-                    .map(s -> new MessageDto(s, new Date()))
-                    .forEach(result::add);
+                    .map(s -> s.concat(System.lineSeparator()))
+                    .forEach(links::append);
+            result.add(createMessageDto(channelInfo.get("title")));
+            result.add(createMessageDto(links.toString()));
             return result;
         } catch (JsonProcessingException e) {
             logger.severe(e.getMessage());
             e.printStackTrace();
-            return Collections.singletonList(new MessageDto("Ошибка при выполнении запроса.", new Date()));
+            return Collections.singletonList(createMessageDto("Ошибка при выполнении запроса."));
         }
     }
 
@@ -59,20 +60,20 @@ public class YouTubeBotImpl implements YouTubeBot {
             String[] data = command.split(Pattern.quote(separator));
             if (data.length != 2) {
                 logger.severe("Unexpected command");
-                return Collections.singletonList(new MessageDto("Команда не распознана.", new Date()));
+                return Collections.singletonList(createMessageDto("Команда не распознана."));
             }
             String channelName = data[0].substring(bias);
             String videoName = data[1];
             String videoId = getVideoId(videoName, getChannelId(channelName));
             Map<String, String> randomCommentInfo = getCommentInfo(getRandomCommentID(videoId));
             List<MessageDto> result = new ArrayList<>();
-            result.add(new MessageDto(randomCommentInfo.get("authorDisplayName"), new Date()));
-            result.add(new MessageDto(randomCommentInfo.get("textDisplay"), new Date()));
+            result.add(createMessageDto(randomCommentInfo.get("authorDisplayName")));
+            result.add(createMessageDto(randomCommentInfo.get("textDisplay")));
             return result;
         } catch (JsonProcessingException e) {
             logger.severe(e.getMessage());
             e.printStackTrace();
-            return Collections.singletonList(new MessageDto("Ошибка при выполнении запроса.", new Date()));
+            return Collections.singletonList(createMessageDto("Ошибка при выполнении запроса."));
         }
     }
 
@@ -84,9 +85,11 @@ public class YouTubeBotImpl implements YouTubeBot {
 
     @Override
     public List<MessageDto> help() {
-        return Arrays.stream(BotCommand.values())
-                .map(c -> new MessageDto(c.getTitle(), new Date()))
-                .collect(Collectors.toList());
+        StringBuilder answer = new StringBuilder();
+        Arrays.stream(BotCommand.values())
+                .map(c -> c.getTitle().concat(System.lineSeparator()))
+                .forEach(answer::append);
+        return Collections.singletonList(createMessageDto(answer.toString()));
     }
 
     private String createVideoUrl(String videoId) {
@@ -157,5 +160,15 @@ public class YouTubeBotImpl implements YouTubeBot {
                 root.path("items").get(0).path("snippet").path("authorDisplayName").textValue());
         result.put("textDisplay", root.path("items").get(0).path("snippet").path("textDisplay").textValue());
         return result;
+    }
+
+    @Override
+    public MessageDto createMessageDto(String text){
+        MessageDto dto = new MessageDto();
+        dto.setRoomId(UUID.fromString("00000000-0000-0000-0000-000000000000"));
+        dto.setUserId(UUID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff"));
+        dto.setCreated(new Date());
+        dto.setText(text);
+        return dto;
     }
 }

@@ -10,6 +10,7 @@ alter table message add constraint FKpdrb79dg3bgym7pydlf9k3p1n foreign key (user
 alter table user_room add constraint FKt69dqc3yclx55jpu6lal8xna8 foreign key (room_id) references room;
 alter table user_room add constraint FKyiyqqc4bed6bdmtsjadvmfnq foreign key (user_id) references users;
 
+insert into users values ('ffffffff-ffff-ffff-ffff-ffffffffffff', 'BOT', '$2a$10$hZqAeReOVy20oEa6M6W/k.f71il7jRCCTFXQUPQn0kz/so2CiD05a', 'BOT', 'ACTIVE', '2021-06-06 00:00:00.000', '2021-06-06 00:00:00.000');
 insert into users values ('00000000-0000-0000-0000-000000000000', 'admin', '$2a$10$tQQzeK4WKAGsz/hFQ/8X6eurXIphyUFwsP0eNAZtXbhOQrsPglYLW', 'ADMIN', 'ACTIVE', '2021-06-06 00:00:00.000', '2021-06-06 00:00:00.000');
 insert into users values ('00000000-0000-0000-0000-000000000001', 'client#1', '$2a$10$qIiKHnzomVYeRU4U49CRium25ziMG5ppMzEZKf.PPLfC.zQa6Fkme', 'CLIENT', 'ACTIVE', '2021-06-06 00:00:00.000', '2021-06-06 00:00:00.000');
 insert into users values ('00000000-0000-0000-0000-000000000002', 'client#2', '$2a$10$TMdd2KhDPgjhb6nry87.b.jelYfmaHh/vE30I0LA0O9PDNHOzIju.', 'CLIENT', 'ACTIVE', '2021-06-06 00:00:00.000', '2021-06-06 00:00:00.000');

@@ -13,7 +13,7 @@ public enum BotCommand {
     YBOT_HELP("^//yBot help$",
             "//yBot help\n" +
                     " - Cписок доступных команд для взаимодействия."),
-    YBOT_VIDEO_COMMENT_RANDOM("^//yBot videoCommentRandom .+||.+",
+    YBOT_VIDEO_COMMENT_RANDOM("^//yBot videoCommentRandom .+\\|\\|.+",
             "//yBot videoCommentRandom {имя канала}||{Название ролика}\n" +
                     " - Среди комментариев к ролику рандомно выбирается 1.\n" +
                     " - Первым сообщением бот выводит login человека, который оставил этот комментарий.\n" +
