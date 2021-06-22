@@ -18,7 +18,6 @@ import ru.simbir.internship.chat.service.CheckRoomAccessService;
 import ru.simbir.internship.chat.service.MessageService;
 import ru.simbir.internship.chat.service.RoomService;
 import ru.simbir.internship.chat.service.UserService;
-import ru.simbir.internship.chat.service.bot.BotCommand;
 import ru.simbir.internship.chat.service.bot.YouTubeBot;
 import ru.simbir.internship.chat.util.MappingUtil;
 
@@ -30,16 +29,14 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
     private final MessageRepository messageRepository;
     private final RoomService roomService;
     private final UserService userService;
-    private final YouTubeBot youTubeBot;
 
     @Autowired
     public MessageServiceImpl(MessageRepository messageRepository, UserRoomRepository userRoomRepository,
-                              RoomService roomService, UserService userService, YouTubeBot youTubeBot) {
+                              RoomService roomService, UserService userService) {
         super(userRoomRepository);
         this.messageRepository = messageRepository;
         this.roomService = roomService;
         this.userService = userService;
-        this.youTubeBot = youTubeBot;
     }
 
     @Override
@@ -113,60 +110,5 @@ public class MessageServiceImpl extends CheckRoomAccessService implements Messag
     public Set<MessageDto> findAll(UUID roomId, UUID userId) {
         checkRoomAccess(userService.getById(userId), roomId);
         return roomService.getRoomById(roomId).getMessages().stream().map(MappingUtil::mapToMessageDto).collect(Collectors.toSet());
-    }
-
-    @Override
-    public MessageDto process(MessageDto messageDto, UUID roomID, UserDto userDto) {
-        if (messageDto == null || roomID == null || userDto == null) {
-            throw new BadRequestException();
-        }
-        if (messageDto.getRoomId() == null) {
-            messageDto.setRoomId(roomID);
-        }
-        if (!messageDto.getRoomId().equals(roomID)) {
-            throw new BadRequestException();
-        }
-        if (messageDto.getId() == null) {
-            if (messageDto.getUserId() == null) {
-                messageDto.setUserId(userDto.getId());
-            }
-            if (!messageDto.getUserId().equals(userDto.getId())) {
-                throw new BadRequestException();
-            }
-            return save(messageDto, roomID, userDto);
-        } else {
-            return edit(messageDto, roomID, userDto);
-        }
-    }
-
-    @Override
-    public List<MessageDto> processBot(MessageDto messageDto, UserDto userDto) {
-        checkBotArgs(messageDto, userDto);
-        String command = messageDto.getText();
-        if (command.matches(BotCommand.YBOT_CHANNEL_INFO.getRegex())) {
-            return youTubeBot.channelInfo(command);
-        }
-        if (command.matches(BotCommand.YBOT_HELP.getRegex())) {
-            return youTubeBot.help();
-        }
-        if (command.matches(BotCommand.YBOT_VIDEO_COMMENT_RANDOM.getRegex())) {
-            return youTubeBot.videoCommentRandom(command);
-        }
-        return Collections.singletonList(youTubeBot.createMessageDto("Команда не распознана."));
-    }
-
-    private void checkBotArgs(MessageDto messageDto, UserDto userDto) {
-        if (messageDto == null || userDto == null) {
-            throw new BadRequestException();
-        }
-        if (!roomService.getRoomById(messageDto.getRoomId()).getType().equals(RoomType.BOT)) {
-            throw new BadRequestException();
-        }
-        if (!messageDto.getUserId().equals(userDto.getId())) {
-            throw new BadRequestException();
-        }
-        if (messageDto.getCreated() == null || messageDto.getCreated().after(new Date())){
-            throw new BadRequestException();
-        }
     }
 }
