@@ -6,6 +6,7 @@ import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import ru.simbir.internship.chat.dto.MessageDto;
 import ru.simbir.internship.chat.dto.UserDto;
@@ -63,6 +64,12 @@ public class WebSocketController {
                 .forEach(m -> simpMessagingTemplate.convertAndSendToUser(
                         sessionId, "/chat/room/00000000-0000-0000-0000-000000000000", m,
                         createMessageHeaders(sessionId)));
+    }
+
+    @MessageExceptionHandler
+    @SendToUser("/chat/error")
+    public String handleException(RuntimeException e) {
+        return e.getMessage();
     }
 
     private MessageHeaders createMessageHeaders(String sessionId) {
