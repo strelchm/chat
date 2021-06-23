@@ -2,15 +2,13 @@ package ru.simbir.internship.chat.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.simbir.internship.chat.domain.RoomType;
 import ru.simbir.internship.chat.dto.MessageDto;
 import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.service.MessageService;
 import ru.simbir.internship.chat.service.RoomService;
 import ru.simbir.internship.chat.service.WebSocketService;
-import ru.simbir.internship.chat.service.bot.BotCommand;
-import ru.simbir.internship.chat.service.bot.YouTubeBot;
+import ru.simbir.internship.chat.service.bot.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,15 +16,19 @@ import java.util.UUID;
 
 @Service
 public class WebSocketServiceImpl implements WebSocketService {
-    private final YouTubeBot youTubeBot;
+    private final yBot yBot;
     private final RoomService roomService;
     private final MessageService messageService;
+    private final RoomBot roomBot;
+    private final UserBot userBot;
 
     @Autowired
-    public WebSocketServiceImpl(YouTubeBot youTubeBot, RoomService roomService, MessageService messageService) {
-        this.youTubeBot = youTubeBot;
+    public WebSocketServiceImpl(yBot yBot, RoomService roomService, MessageService messageService, RoomBot roomBot, UserBot userBot) {
+        this.yBot = yBot;
         this.roomService = roomService;
         this.messageService = messageService;
+        this.roomBot = roomBot;
+        this.userBot = userBot;
     }
 
     @Override
@@ -54,20 +56,29 @@ public class WebSocketServiceImpl implements WebSocketService {
     }
 
     @Override
-    public List<MessageDto> processBot(MessageDto messageDto) {
+    public List<MessageDto> processBot(MessageDto messageDto, UserDto userDto) {
         String command = messageDto.getText();
-        if (command.matches(BotCommand.YBOT_CHANNEL_INFO.getRegex())) {
-            return youTubeBot.channelInfo(command);
+        if (command.matches(yBotCommand.YBOT_CHANNEL_INFO.getRegex())) {
+            return yBot.channelInfo(command);
         }
-        if (command.matches(BotCommand.YBOT_HELP.getRegex())) {
-            return youTubeBot.help();
+        if (command.matches(yBotCommand.YBOT_HELP.getRegex())) {
+            return yBot.help();
         }
-        if (command.matches(BotCommand.YBOT_VIDEO_COMMENT_RANDOM.getRegex())) {
-            return youTubeBot.videoCommentRandom(command);
+        if (command.matches(yBotCommand.YBOT_VIDEO_COMMENT_RANDOM.getRegex())) {
+            return yBot.videoCommentRandom(command);
         }
-        if (command.matches(BotCommand.YBOT_FIND.getRegex())) {
-            return youTubeBot.find(command);
+        if (command.matches(yBotCommand.YBOT_FIND.getRegex())) {
+            return yBot.find(command);
         }
-        return Collections.singletonList(youTubeBot.createMessageDto("Команда не распознана."));
+        if (command.matches(BotCommand.ROOM_REMOVE.getRegex())) {
+            return roomBot.remove(command, userDto);
+        }
+        if (command.matches(BotCommand.ROOM_CREATE.getRegex())) {
+            return roomBot.create(command, userDto);
+        }
+        if (command.matches(BotCommand.HELP.getRegex())) {
+            return roomBot.help();
+        }
+        return Collections.singletonList(yBot.createMessageDto("Команда не распознана."));
     }
 }

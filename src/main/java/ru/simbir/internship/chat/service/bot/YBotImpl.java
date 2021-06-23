@@ -17,16 +17,17 @@ import java.net.URI;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
-public class YouTubeBotImpl implements YouTubeBot {
+public class YBotImpl implements yBot {
     public static final UUID BOT_ROOM_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
     public static final UUID BOT_USER_ID = UUID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
     @Value("${chat.google-api-key}")
     private String key;
 
-    private final Logger logger = Logger.getLogger(YouTubeBotImpl.class.getName());
+    private final Logger logger = Logger.getLogger(YBotImpl.class.getName());
     private final String prefix = "https://www.googleapis.com/youtube/v3/";
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -36,7 +37,7 @@ public class YouTubeBotImpl implements YouTubeBot {
     private final UserService userService;
 
     @Autowired
-    public YouTubeBotImpl(ObjectMapper objectMapper, MessageService messageService, UserService userService) {
+    public YBotImpl(ObjectMapper objectMapper, MessageService messageService, UserService userService) {
         this.objectMapper = objectMapper;
         this.messageService = messageService;
         this.userService = userService;
@@ -124,11 +125,9 @@ public class YouTubeBotImpl implements YouTubeBot {
 
     @Override
     public List<MessageDto> help() {
-        StringBuilder answer = new StringBuilder();
-        Arrays.stream(BotCommand.values())
-                .map(c -> c.getTitle().concat(System.lineSeparator()))
-                .forEach(answer::append);
-        return Collections.singletonList(createMessageDto(answer.toString()));
+        return Arrays.stream(yBotCommand.values())
+                .map(s -> createMessageDto(s.getTitle()))
+                .collect(Collectors.toList());
     }
 
     private String createVideoUrl(String videoId) {

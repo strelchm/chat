@@ -9,5 +9,5 @@ import java.util.UUID;
 public interface WebSocketService {
     MessageDto process(MessageDto dto, UUID roomID, UserDto userDto);
 
-    List<MessageDto> processBot(MessageDto dto);
+    List<MessageDto> processBot(MessageDto dto, UserDto userDto);
 }
