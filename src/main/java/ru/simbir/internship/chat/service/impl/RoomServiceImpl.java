@@ -154,7 +154,13 @@ public class RoomServiceImpl extends CheckRoomAccessService implements RoomServi
         roomRepository.delete(room);
     }
 
+    @Override
     public Room getRoomById(UUID id) {
         return roomRepository.findById(id).orElseThrow(() -> new NotFoundException("Room with id " + id + " not found"));
+    }
+
+    @Override
+    public Room getRoomByName(String name) {
+        return roomRepository.findByName(name).orElseThrow(() -> new NotFoundException("Room with name " + name + " not found"));
     }
 }

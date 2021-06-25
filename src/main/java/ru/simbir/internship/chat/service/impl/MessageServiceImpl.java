@@ -18,7 +18,6 @@ import ru.simbir.internship.chat.service.CheckRoomAccessService;
 import ru.simbir.internship.chat.service.MessageService;
 import ru.simbir.internship.chat.service.RoomService;
 import ru.simbir.internship.chat.service.UserService;
-import ru.simbir.internship.chat.service.bot.YouTubeBot;
 import ru.simbir.internship.chat.util.MappingUtil;
 
 import java.util.*;

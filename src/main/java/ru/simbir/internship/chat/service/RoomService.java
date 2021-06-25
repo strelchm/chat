@@ -33,4 +33,6 @@ public interface RoomService {
     void moderatorRemove(UUID roomId, UserDto userDto, UUID moderatorId);
 
     Room getRoomById(UUID id);
+
+    Room getRoomByName(String name);
 }
