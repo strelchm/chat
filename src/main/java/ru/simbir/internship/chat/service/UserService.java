@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface UserService {
     List<UserDto> getAll();
 
+    UserDto getSelf(UserDto dto);
+
     UserDto getById(UUID id);
 
     UUID add(UserDto dto);

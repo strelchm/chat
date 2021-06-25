@@ -40,6 +40,11 @@ public class UserController extends ParentController {
         return userService.getById(id);
     }
 
+    @PostMapping("/self")
+    public UserDto getSelf(@ModelAttribute(USER_CONTEXT) UserContext userContext) {
+        return userService.getSelf(userContext.getUser().get());
+    }
+
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
     public IdDto createUser(@NotNull(message = NULL_CREATE_OBJECT_REQUEST_EXCEPTION) @Validated @RequestBody UserDto dto) {

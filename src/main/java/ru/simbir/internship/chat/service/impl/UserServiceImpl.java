@@ -37,6 +37,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto getSelf(UserDto dto) {
+        return getById(dto.getId());
+    }
+
+    @Override
     public UserDto getById(UUID id) {
         return MappingUtil.mapToUserDto(getUserById(id));
     }
