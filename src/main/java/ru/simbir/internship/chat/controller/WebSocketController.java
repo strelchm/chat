@@ -16,9 +16,8 @@ import ru.simbir.internship.chat.service.WebSocketService;
 
 import java.util.Comparator;
 import java.util.UUID;
-import java.util.stream.Stream;
 
-import static ru.simbir.internship.chat.service.bot.YouTubeBotImpl.BOT_ROOM_ID;
+import static ru.simbir.internship.chat.service.bot.YBotImpl.BOT_ROOM_ID;
 
 @Controller
 public class WebSocketController {
@@ -57,9 +56,11 @@ public class WebSocketController {
             throw new AccessDeniedException();
         }
         String sessionId = headerAccessor.getSessionId();
-        Stream.concat(
-                Stream.of(webSocketService.process(dto, BOT_ROOM_ID, userDto)),
-                webSocketService.processBot(dto).stream())
+        simpMessagingTemplate.convertAndSendToUser(
+                sessionId, "/chat/room/00000000-0000-0000-0000-000000000000",
+                webSocketService.process(dto, BOT_ROOM_ID, userDto),
+                createMessageHeaders(sessionId));
+        webSocketService.processBot(dto, userDto).stream()
                 .sorted(Comparator.comparing(MessageDto::getCreated))
                 .forEach(m -> simpMessagingTemplate.convertAndSendToUser(
                         sessionId, "/chat/room/00000000-0000-0000-0000-000000000000", m,
@@ -69,6 +70,7 @@ public class WebSocketController {
     @MessageExceptionHandler
     @SendToUser("/chat/error")
     public String handleException(RuntimeException e) {
+        e.printStackTrace();
         return e.getMessage();
     }
 

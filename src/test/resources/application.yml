@@ -14,3 +14,5 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
+chat:
+  google-api-key: AIzaSyAV2BoB8gy7Fhp6lOV3vxBQykDR1t-DK-Y
