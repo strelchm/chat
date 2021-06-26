@@ -28,6 +28,9 @@ public class UserRoomImpl extends CheckRoomAccessService implements UserRoomServ
 
     @Override
     public void deregisterUser(User user, UUID roomId, UserDto userDto) {
+        if (user.getUserAppRole().equals(UserAppRole.ADMIN)) {
+            throw new BadRequestException("Not applicable to admin.");
+        }
         if (userDto.getId() != user.getId()) {
             checkRoomAccess(userDto, roomId, UserRoomRole.USER, UserRoomRole.BLOCKED_USER);
         }
@@ -41,6 +44,9 @@ public class UserRoomImpl extends CheckRoomAccessService implements UserRoomServ
 
     @Override
     public void banUser(User user, UUID roomId, int minutes, UserDto userDto) {
+        if (user.getUserAppRole().equals(UserAppRole.ADMIN)) {
+            throw new BadRequestException("Not applicable to admin.");
+        }
         if (userDto.getId() != user.getId()) {
             checkRoomAccess(userDto, roomId, UserRoomRole.USER, UserRoomRole.BLOCKED_USER);
         }
