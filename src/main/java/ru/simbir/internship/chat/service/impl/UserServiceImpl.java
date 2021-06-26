@@ -4,14 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.simbir.internship.chat.domain.User;
-import ru.simbir.internship.chat.domain.UserAppRole;
-import ru.simbir.internship.chat.domain.UserStatus;
+import ru.simbir.internship.chat.domain.*;
 import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.repository.UserRepository;
+import ru.simbir.internship.chat.service.UserRoomService;
 import ru.simbir.internship.chat.service.UserService;
 import ru.simbir.internship.chat.util.MappingUtil;
 
@@ -20,15 +19,19 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static ru.simbir.internship.chat.service.bot.YBotImpl.BOT_ROOM_ID;
+
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
+    private final UserRoomService userRoomService;
 
     @Autowired
-    public UserServiceImpl(UserRepository repository, PasswordEncoder encoder) {
+    public UserServiceImpl(UserRepository repository, PasswordEncoder encoder, UserRoomService userRoomService) {
         this.userRepository = repository;
         this.encoder = encoder;
+        this.userRoomService = userRoomService;
     }
 
     @Override
@@ -48,10 +51,11 @@ public class UserServiceImpl implements UserService {
         } else if (dto.getUserAppRole() == UserAppRole.ADMIN) {
             throw new BadRequestException("Can't register admin during standard registration attempt");
         }
-
         dto.setPassword(encoder.encode(dto.getPassword()));
         dto.setStatus(UserStatus.ACTIVE);
-        return userRepository.save(MappingUtil.mapToUserEntity(dto)).getId();
+        User user = userRepository.save(MappingUtil.mapToUserEntity(dto));
+        userRoomService.registerUser(user, BOT_ROOM_ID, UserRoomRole.USER, null);
+        return userRepository.save(user).getId();
     }
 
     @Override

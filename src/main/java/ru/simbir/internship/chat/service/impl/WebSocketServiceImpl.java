@@ -16,14 +16,14 @@ import java.util.UUID;
 
 @Service
 public class WebSocketServiceImpl implements WebSocketService {
-    private final yBot yBot;
+    private final YBot yBot;
     private final RoomService roomService;
     private final MessageService messageService;
     private final RoomBot roomBot;
     private final UserBot userBot;
 
     @Autowired
-    public WebSocketServiceImpl(yBot yBot, RoomService roomService, MessageService messageService, RoomBot roomBot, UserBot userBot) {
+    public WebSocketServiceImpl(YBot yBot, RoomService roomService, MessageService messageService, RoomBot roomBot, UserBot userBot) {
         this.yBot = yBot;
         this.roomService = roomService;
         this.messageService = messageService;
@@ -58,16 +58,16 @@ public class WebSocketServiceImpl implements WebSocketService {
     @Override
     public List<MessageDto> processBot(MessageDto messageDto, UserDto userDto) {
         String command = messageDto.getText();
-        if (command.matches(yBotCommand.YBOT_CHANNEL_INFO.getRegex())) {
+        if (command.matches(YBotCommand.YBOT_CHANNEL_INFO.getRegex())) {
             return yBot.channelInfo(command);
         }
-        if (command.matches(yBotCommand.YBOT_HELP.getRegex())) {
+        if (command.matches(YBotCommand.YBOT_HELP.getRegex())) {
             return yBot.help();
         }
-        if (command.matches(yBotCommand.YBOT_VIDEO_COMMENT_RANDOM.getRegex())) {
+        if (command.matches(YBotCommand.YBOT_VIDEO_COMMENT_RANDOM.getRegex())) {
             return yBot.videoCommentRandom(command);
         }
-        if (command.matches(yBotCommand.YBOT_FIND.getRegex())) {
+        if (command.matches(YBotCommand.YBOT_FIND.getRegex())) {
             return yBot.find(command);
         }
         if (command.matches(BotCommand.ROOM_REMOVE.getRegex())) {
@@ -78,6 +78,15 @@ public class WebSocketServiceImpl implements WebSocketService {
         }
         if (command.matches(BotCommand.HELP.getRegex())) {
             return roomBot.help();
+        }
+        if (command.matches(BotCommand.ROOM_RENAME.getRegex())) {
+            return roomBot.rename(command, userDto);
+        }
+        if (command.matches(BotCommand.ROOM_CONNECT.getRegex())) {
+            return roomBot.connect(command, userDto);
+        }
+        if (command.matches(BotCommand.ROOM_DISCONNECT.getRegex())) {
+            return roomBot.disconnect(command, userDto);
         }
         return Collections.singletonList(yBot.createMessageDto("Команда не распознана."));
     }

@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
-public class YBotImpl implements yBot {
+public class YBotImpl implements YBot {
     public static final UUID BOT_ROOM_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
     public static final UUID BOT_USER_ID = UUID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
@@ -125,7 +125,7 @@ public class YBotImpl implements yBot {
 
     @Override
     public List<MessageDto> help() {
-        return Arrays.stream(yBotCommand.values())
+        return Arrays.stream(YBotCommand.values())
                 .map(s -> createMessageDto(s.getTitle()))
                 .collect(Collectors.toList());
     }

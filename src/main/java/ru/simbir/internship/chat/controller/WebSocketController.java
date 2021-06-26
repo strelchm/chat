@@ -70,6 +70,7 @@ public class WebSocketController {
     @MessageExceptionHandler
     @SendToUser("/chat/error")
     public String handleException(RuntimeException e) {
+        e.printStackTrace();
         return e.getMessage();
     }
 

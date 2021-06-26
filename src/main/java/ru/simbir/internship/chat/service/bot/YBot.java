@@ -4,7 +4,7 @@ import ru.simbir.internship.chat.dto.MessageDto;
 
 import java.util.List;
 
-public interface yBot {
+public interface YBot {
     List<MessageDto> channelInfo(String command);
 
     List<MessageDto> videoCommentRandom(String command);

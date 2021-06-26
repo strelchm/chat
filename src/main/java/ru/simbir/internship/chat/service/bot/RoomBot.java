@@ -13,9 +13,9 @@ public interface RoomBot {
 
     List<MessageDto> remove(String command, UserDto userDto);
 
-    List<MessageDto> rename(String command);
+    List<MessageDto> rename(String command, UserDto userDto);
 
-    List<MessageDto> connect(String command);
+    List<MessageDto> connect(String command, UserDto userDto);
 
-    List<MessageDto> disconnect(String command);
+    List<MessageDto> disconnect(String command, UserDto userDto);
 }
