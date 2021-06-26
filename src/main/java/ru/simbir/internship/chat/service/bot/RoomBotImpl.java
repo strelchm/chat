@@ -2,35 +2,37 @@ package ru.simbir.internship.chat.service.bot;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.simbir.internship.chat.domain.RoomType;
-import ru.simbir.internship.chat.domain.User;
-import ru.simbir.internship.chat.domain.UserRoom;
-import ru.simbir.internship.chat.domain.UserRoomRole;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import ru.simbir.internship.chat.domain.*;
 import ru.simbir.internship.chat.dto.MessageDto;
 import ru.simbir.internship.chat.dto.RoomDto;
 import ru.simbir.internship.chat.dto.UserDto;
-import ru.simbir.internship.chat.repository.UserRoomRepository;
+import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.service.RoomService;
+import ru.simbir.internship.chat.service.UserRoomService;
 import ru.simbir.internship.chat.service.UserService;
+import ru.simbir.internship.chat.util.MappingUtil;
 
 import java.util.*;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class RoomBotImpl implements RoomBot{
-
-    private final yBot yBot;
+    private final Logger logger = Logger.getLogger(RoomBotImpl.class.getName());
+    private final YBot yBot;
     private final RoomService roomService;
     private final UserService userService;
-    private final UserRoomRepository userRoomRepository;
+    private final UserRoomService userRoomService;
 
     @Autowired
-    public RoomBotImpl(yBot yBot, RoomService roomService, UserService userService, UserRoomRepository userRoomRepository) {
+    public RoomBotImpl(YBot yBot, RoomService roomService, UserService userService, UserRoomService userRoomService) {
         this.yBot = yBot;
         this.roomService = roomService;
         this.userService = userService;
-        this.userRoomRepository = userRoomRepository;
+        this.userRoomService = userRoomService;
     }
 
     @Override
@@ -43,20 +45,10 @@ public class RoomBotImpl implements RoomBot{
         };
         RoomDto roomDto = new RoomDto();
         roomDto.setType(isPrivate ? RoomType.PRIVATE : RoomType.PUBLIC);
-        roomDto.setName(command.substring(bias));
-        UUID roomId = roomService.add(roomDto, userDto);
-        User user = userService.getUserById(userDto.getId());
-        UserRoom userRoom = new UserRoom();
-        userRoom.setRoom(roomService.getRoomById(roomId));
-        userRoom.setUser(user);
-        UserRoom.Key key = new UserRoom.Key();
-        key.setRoomId(roomId);
-        key.setUserId(user.getId());
-        userRoom.setId(key);
-        userRoom.setCreated(new Date());
-        userRoom.setUserRoomRole(UserRoomRole.OWNER);
-        userRoomRepository.save(userRoom);
-        return Collections.singletonList(yBot.createMessageDto("Создана комната " + roomId));
+        String name = command.substring(bias);
+        roomDto.setName(name);
+        roomService.add(roomDto, userDto);
+        return Collections.singletonList(yBot.createMessageDto("Создана комната " + name));
     }
 
     @Override
@@ -68,18 +60,99 @@ public class RoomBotImpl implements RoomBot{
     }
 
     @Override
-    public List<MessageDto> rename(String command) {
-        return null;
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<MessageDto> rename(String command, UserDto userDto) {
+        int bias = 14; //сколько пропускать символов до начала названия
+        String separator = " ";
+        String[] data = command.substring(bias).split(Pattern.quote(separator));
+        if (data.length != 2) {
+            logger.severe("Unexpected command");
+            return Collections.singletonList(yBot.createMessageDto("Команда не распознана."));
+        }
+        Room room = roomService.getRoomByName(data[0]);
+        room.setName(data[1]);
+        roomService.edit(MappingUtil.mapToRoomDto(room), userDto);
+        return Collections.singletonList(yBot.createMessageDto(
+                "Комната " + data[0] + " переименована в " + data[1]));
     }
 
     @Override
-    public List<MessageDto> connect(String command) {
-        return null;
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<MessageDto> connect(String command, UserDto userDto) {
+        int bias = 15; //сколько пропускать символов до начала названия
+        User user;
+        String roomName;
+        if (command.matches("^//room connect -l \\S+ \\S+$")) {
+            bias = bias + 3;
+            String separator = " ";
+            String[] data = command.substring(bias).split(Pattern.quote(separator));
+            if (data.length != 2) {
+                logger.severe("Unexpected command");
+                return Collections.singletonList(yBot.createMessageDto("Команда не распознана."));
+            }
+            user = userService.getUserById(
+                    userService.getUserByLogin(data[0]).orElseThrow(NotFoundException::new).getId());
+            roomName = data[1];
+        } else {
+            user = MappingUtil.mapToUserEntity(userDto);
+            roomName = command.substring(bias);
+        }
+        UUID roomID = roomService.getRoomByName(roomName).getId();
+        userRoomService.registerUser(user, roomID, UserRoomRole.USER, userDto);
+        return  Collections.singletonList(yBot.createMessageDto(
+                "Пользователь " + user.getLogin() + " присоединился к комнате " + roomName));
     }
 
     @Override
-    public List<MessageDto> disconnect(String command) {
-        return null;
+    public List<MessageDto> disconnect(String command, UserDto userDto) {
+        int bias = 18; //сколько пропускать символов до начала названия
+        User user;
+        String roomName;
+        Integer penalty = null;
+        if (command.matches("^//room disconnect -l \\S+ \\S+$")) {
+            bias = bias + 3;
+            String separator = " ";
+            String[] data = command.substring(bias).split(Pattern.quote(separator));
+            if (data.length != 2) {
+                logger.severe("Unexpected command");
+                return Collections.singletonList(yBot.createMessageDto("Команда не распознана."));
+            }
+            user = userService.getUserById(
+                    userService.getUserByLogin(data[0]).orElseThrow(NotFoundException::new).getId());
+            roomName = data[1];
+        } else if (command.matches("^//room disconnect -l \\S+ -m \\d+ \\S+$")){
+            bias = bias + 3;
+            String separator = " ";
+            String[] data = command.substring(bias).split(Pattern.quote(separator));
+            if (data.length != 4) {
+                logger.severe("Unexpected command");
+                return Collections.singletonList(yBot.createMessageDto("Команда не распознана."));
+            }
+            user = userService.getUserById(
+                    userService.getUserByLogin(data[0]).orElseThrow(NotFoundException::new).getId());
+            penalty = Integer.parseInt(data[2]);
+            roomName = data[3];
+        } else if (command.matches("^//room disconnect \\S+$")){
+            user = MappingUtil.mapToUserEntity(userDto);
+            roomName = command.substring(bias);
+        } else {
+            return Collections.singletonList(yBot.createMessageDto("Команда не распознана."));
+        }
+        UUID roomID = roomService.getRoomByName(roomName).getId();
+        if (penalty != null) {
+            if (penalty > 0) {
+                userRoomService.banUser(user, roomID, penalty, userDto);
+                return Collections.singletonList(yBot.createMessageDto(
+                        String.format("Пользователь %s заблокирован в комнате %s на %d минут.",
+                                user.getLogin(), roomName, penalty)));
+            } else {
+                return Collections.singletonList(
+                        yBot.createMessageDto("Количество минут блокировки должно быть больше 0."));
+            }
+        }
+        userRoomService.deregisterUser(user, roomID, userDto);
+        return  Collections.singletonList(yBot.createMessageDto(
+                "Пользователь " + user.getLogin() + " покинул комнату " + roomName));
     }
 
     @Override

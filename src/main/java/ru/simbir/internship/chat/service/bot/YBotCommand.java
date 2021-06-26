@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum yBotCommand {
+public enum YBotCommand {
     YBOT_CHANNEL_INFO("^//yBot channelInfo .+",
                     "//yBot channelInfo {имя канала}\n" +
                     " - Первым сообщением от бота выводится имя канала.\n" +

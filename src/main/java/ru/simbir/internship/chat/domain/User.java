@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
@@ -21,8 +22,8 @@ import java.util.Set;
 @Table(name = "users")
 public class User extends ParentEntity {
     @NotNull
-    @Size(min = 3, max = 50)
     @Column(unique = true)
+    @Pattern(regexp = "\\S{3,50}")
     private String login;
 
     @NotNull
