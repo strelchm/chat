@@ -8,3 +8,4 @@ postgres=# create database chat;
 postgres=# create user chatuser with encrypted password '12345';
 postgres=# grant all privileges on database chat to chatuser;
 ```
+We use Redis as cache storage, so it must be installed before project build.
