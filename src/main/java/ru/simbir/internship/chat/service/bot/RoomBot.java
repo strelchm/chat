@@ -18,4 +18,10 @@ public interface RoomBot {
     List<MessageDto> connect(String command, UserDto userDto);
 
     List<MessageDto> disconnect(String command, UserDto userDto);
+
+    List<MessageDto> loginRename(String command, UserDto userDto);
+
+    List<MessageDto> userBan(String command, UserDto userDto);
+
+    List<MessageDto> moderatorEdit(String command, UserDto userDto);
 }

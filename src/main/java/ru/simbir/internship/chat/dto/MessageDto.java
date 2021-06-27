@@ -16,6 +16,7 @@ public class MessageDto {
     private UUID id;
     private UUID roomId;
     private UUID userId;
+    private String userLogin;
     @NotNull(message = "text can't be null")
     @NotEmpty(message = "text can't be empty")
     private String text;

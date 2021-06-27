@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import ru.simbir.internship.chat.repository.BlockedUserRepository;
 import ru.simbir.internship.chat.service.JwtTokenService;
 
 @Configuration
@@ -22,10 +23,12 @@ import ru.simbir.internship.chat.service.JwtTokenService;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
     private final JwtTokenService tokenService;
+    private final BlockedUserRepository blockedUserRepository;
 
     @Autowired
-    public SecurityConfiguration(JwtTokenService tokenService) {
+    public SecurityConfiguration(JwtTokenService tokenService, BlockedUserRepository blockedUserRepository) {
         this.tokenService = tokenService;
+        this.blockedUserRepository = blockedUserRepository;
     }
 
     @Override
@@ -44,11 +47,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .mvcMatchers( "/api/login", "/api/login/*","/api/users", "/api/users/*").permitAll() // todo
-                .mvcMatchers("/*","/ws/**", "/admin", "/client").permitAll()
+                .mvcMatchers("/api/login", "/api/login/*", "/api/users", "/api/users/*").permitAll() // todo
+                .mvcMatchers("/*", "/ws/**", "/admin", "/client").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(new JwtAuthenticationFilter(tokenService),
+                .addFilterBefore(new JwtAuthenticationFilter(tokenService, blockedUserRepository),
                         UsernamePasswordAuthenticationFilter.class);
     }
 

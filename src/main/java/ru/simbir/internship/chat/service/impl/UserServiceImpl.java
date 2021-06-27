@@ -9,6 +9,7 @@ import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.exception.NotFoundException;
+import ru.simbir.internship.chat.repository.BlockedUserRepository;
 import ru.simbir.internship.chat.repository.UserRepository;
 import ru.simbir.internship.chat.service.UserRoomService;
 import ru.simbir.internship.chat.service.UserService;
@@ -26,12 +27,15 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
     private final UserRoomService userRoomService;
+    private final BlockedUserRepository blockedUserRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository repository, PasswordEncoder encoder, UserRoomService userRoomService) {
+    public UserServiceImpl(UserRepository repository, PasswordEncoder encoder, UserRoomService userRoomService,
+                           BlockedUserRepository blockedUserRepository) {
         this.userRepository = repository;
         this.encoder = encoder;
         this.userRoomService = userRoomService;
+        this.blockedUserRepository = blockedUserRepository;
     }
 
     @Override
@@ -77,6 +81,10 @@ public class UserServiceImpl implements UserService {
 
         if (dto.getStatus() != null && !user.getStatus().equals(dto.getStatus())) {
             user.setStatus(dto.getStatus());
+
+            if (dto.getStatus() == UserStatus.GLOBAL_BLOCKED) {
+                blockedUserRepository.save(new BlockedUser(dto.getId()));
+            }
         }
 
         return MappingUtil.mapToUserDto(userRepository.save(user));
@@ -94,19 +102,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Secured("ROLE_ADMIN")
     public void blockUser(UUID userId, UserDto userDto) {
+        if(userDto.getUserAppRole() != UserAppRole.ADMIN) {
+            throw new AccessDeniedException("Only admin can block users");
+        }
         changeUserStatusByAdmin(userId, userDto, UserStatus.GLOBAL_BLOCKED);
+        blockedUserRepository.save(new BlockedUser(userId));
     }
 
     @Override
-    @Secured("ROLE_ADMIN")
     public void unblockUser(UUID userId, UserDto userDto) {
+        if(userDto.getUserAppRole() != UserAppRole.ADMIN) {
+            throw new AccessDeniedException("Only admin can unblock users");
+        }
         changeUserStatusByAdmin(userId, userDto, UserStatus.ACTIVE);
+        blockedUserRepository.deleteById(userId);
     }
 
     private void changeUserStatusByAdmin(UUID userId, UserDto userDto, UserStatus status) {
         User user = getUserById(userId);
+
+        if (user.getStatus() == status) {
+            throw new BadRequestException("Status is already " + status);
+        }
+
         user.setStatus(status);
         userRepository.save(user);
     }
@@ -118,7 +137,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserDto> getUserByLogin(String login) {
-        User user = userRepository.findByLogin(login).orElse(null);
+        User user = userRepository.findByLogin(login).orElseThrow(() -> new NotFoundException("User with login " + login + " not found"));
         return Optional.ofNullable(MappingUtil.mapToUserDto(user));
     }
 }

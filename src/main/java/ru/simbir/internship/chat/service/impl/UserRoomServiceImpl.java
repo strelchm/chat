@@ -14,16 +14,22 @@ import ru.simbir.internship.chat.service.UserRoomService;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
-public class UserRoomImpl extends CheckRoomAccessService implements UserRoomService {
+public class UserRoomServiceImpl extends CheckRoomAccessService implements UserRoomService {
     private final RoomRepository roomRepository;
 
     @Autowired
-    public UserRoomImpl(RoomRepository roomRepository, UserRoomRepository userRoomRepository) {
+    public UserRoomServiceImpl(RoomRepository roomRepository, UserRoomRepository userRoomRepository) {
         super(userRoomRepository);
-        this.roomRepository= roomRepository;
+        this.roomRepository = roomRepository;
+    }
+
+    @Override
+    public List<UserRoom> getAllByUserId(UUID userId) {
+        return userRoomRepository.findByUser_Id(userId);
     }
 
     @Override
@@ -49,6 +55,9 @@ public class UserRoomImpl extends CheckRoomAccessService implements UserRoomServ
     @Override
     public void banUser(User user, UUID roomId, int minutes, UserDto userDto) {
         UserRoom userRoom = checkAccessAndGetUserRoom(user, roomId, userDto);
+        if (userRoom.getUserRoomRole() != UserRoomRole.BLOCKED_USER) {
+            userRoom.setOldRole(userRoom.getUserRoomRole());
+        }
         userRoom.setUserRoomRole(UserRoomRole.BLOCKED_USER);
         LocalDateTime blockedTime = LocalDateTime.now();
         blockedTime = blockedTime.plus(minutes, ChronoUnit.MINUTES);
