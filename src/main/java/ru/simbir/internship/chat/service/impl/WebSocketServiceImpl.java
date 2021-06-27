@@ -19,16 +19,14 @@ public class WebSocketServiceImpl implements WebSocketService {
     private final YBot yBot;
     private final RoomService roomService;
     private final MessageService messageService;
-    private final RoomBot roomBot;
-    private final UserBot userBot;
+    private final RoomAndUserBot roomAndUserBot;
 
     @Autowired
-    public WebSocketServiceImpl(YBot yBot, RoomService roomService, MessageService messageService, RoomBot roomBot, UserBot userBot) {
+    public WebSocketServiceImpl(YBot yBot, RoomService roomService, MessageService messageService, RoomAndUserBot roomAndUserBot) {
         this.yBot = yBot;
         this.roomService = roomService;
         this.messageService = messageService;
-        this.roomBot = roomBot;
-        this.userBot = userBot;
+        this.roomAndUserBot = roomAndUserBot;
     }
 
     @Override
@@ -71,29 +69,32 @@ public class WebSocketServiceImpl implements WebSocketService {
             if (command.matches(YBotCommand.YBOT_FIND.getRegex())) {
                 return yBot.find(command);
             }
-            if (command.matches(BotCommand.ROOM_REMOVE.getRegex())) {
-                return roomBot.remove(command, userDto);
+            if (command.matches(RoomAndUserBotCommand.ROOM_REMOVE.getRegex())) {
+                return roomAndUserBot.remove(command, userDto);
             }
-            if (command.matches(BotCommand.ROOM_CREATE.getRegex())) {
-                return roomBot.create(command, userDto);
+            if (command.matches(RoomAndUserBotCommand.ROOM_CREATE.getRegex())) {
+                return roomAndUserBot.create(command, userDto);
             }
-            if (command.matches(BotCommand.HELP.getRegex())) {
-                return roomBot.help();
+            if (command.matches(RoomAndUserBotCommand.HELP.getRegex())) {
+                return roomAndUserBot.help();
             }
-            if (command.matches(BotCommand.ROOM_RENAME.getRegex())) {
-                return roomBot.rename(command, userDto);
+            if (command.matches(RoomAndUserBotCommand.ROOM_RENAME.getRegex())) {
+                return roomAndUserBot.rename(command, userDto);
             }
-            if (command.matches(BotCommand.ROOM_CONNECT.getRegex())) {
-                return roomBot.connect(command, userDto);
+            if (command.matches(RoomAndUserBotCommand.ROOM_CONNECT.getRegex())) {
+                return roomAndUserBot.connect(command, userDto);
             }
-            if (command.matches(BotCommand.ROOM_DISCONNECT.getRegex())) {
-                return roomBot.disconnect(command, userDto);
+            if (command.matches(RoomAndUserBotCommand.ROOM_DISCONNECT.getRegex())) {
+                return roomAndUserBot.disconnect(command, userDto);
             }
-            if (command.matches(BotCommand.USER_RENAME.getRegex())) {
-                return roomBot.loginRename(command, userDto);
+            if (command.matches(RoomAndUserBotCommand.USER_RENAME.getRegex())) {
+                return roomAndUserBot.loginRename(command, userDto);
             }
-            if (command.matches(BotCommand.USER_BAN.getRegex())) {
-                return roomBot.userBan(command, userDto);
+            if (command.matches(RoomAndUserBotCommand.USER_BAN.getRegex())) {
+                return roomAndUserBot.userBan(command, userDto);
+            }
+            if (command.matches(RoomAndUserBotCommand.USER_MODERATOR.getRegex())) {
+                return roomAndUserBot.moderatorEdit(command, userDto);
             }
         } catch (Exception ex) {
             ex.printStackTrace();

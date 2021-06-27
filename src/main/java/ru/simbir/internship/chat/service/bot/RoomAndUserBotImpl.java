@@ -8,6 +8,7 @@ import ru.simbir.internship.chat.domain.*;
 import ru.simbir.internship.chat.dto.MessageDto;
 import ru.simbir.internship.chat.dto.RoomDto;
 import ru.simbir.internship.chat.dto.UserDto;
+import ru.simbir.internship.chat.exception.AccessDeniedException;
 import ru.simbir.internship.chat.exception.BadRequestException;
 import ru.simbir.internship.chat.exception.NotFoundException;
 import ru.simbir.internship.chat.service.RoomService;
@@ -24,15 +25,15 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
-public class RoomBotImpl implements RoomBot {
-    private final Logger logger = Logger.getLogger(RoomBotImpl.class.getName());
+public class RoomAndUserBotImpl implements RoomAndUserBot {
+    private final Logger logger = Logger.getLogger(RoomAndUserBotImpl.class.getName());
     private final YBot yBot;
     private final RoomService roomService;
     private final UserService userService;
     private final UserRoomService userRoomService;
 
     @Autowired
-    public RoomBotImpl(YBot yBot, RoomService roomService, UserService userService, UserRoomService userRoomService) {
+    public RoomAndUserBotImpl(YBot yBot, RoomService roomService, UserService userService, UserRoomService userRoomService) {
         this.yBot = yBot;
         this.roomService = roomService;
         this.userService = userService;
@@ -232,22 +233,36 @@ public class RoomBotImpl implements RoomBot {
         );
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public List<MessageDto> moderatorEdit(String command, UserDto userDto) {
-        String[] args = command.substring(14).split(" ");
+        if (!userDto.getUserAppRole().equals(UserAppRole.ADMIN)) {
+            throw new AccessDeniedException("Only admin can edit moderators.");
+        }
+        String[] args = command.substring(17).split(" ");
         System.out.println(Arrays.toString(args));
         if (args[0].equals("-n")) {
-//            return foreverBan(names[0], userDto);
+            User user = userService.getUserById(
+                    userService.getUserByLogin(args[2]).orElseThrow(NotFoundException::new).getId());
+            UUID roomID = roomService.getRoomByName(args[1]).getId();
+            userRoomService.registerUser(user, roomID, UserRoomRole.MODERATOR, userDto);
+            return Collections.singletonList(yBot.createMessageDto(
+                    String.format("Пользователь %s назначен модератором в комнате %s.", args[2], args[1])));
         } else if (args[0].equals("-d")) {
-//            return ban(command, userDto);
+            User user = userService.getUserById(
+                    userService.getUserByLogin(args[2]).orElseThrow(NotFoundException::new).getId());
+            UUID roomID = roomService.getRoomByName(args[1]).getId();
+            userRoomService.registerUser(user, roomID, UserRoomRole.USER, userDto);
+            return Collections.singletonList(yBot.createMessageDto(
+                    String.format("Пользователь %s назначен простым пользователем в комнате %s.", args[2], args[1])));
         } else {
             throw new BadRequestException();
         }
-        return null;
     }
 
     @Override
     public List<MessageDto> help() {
-        List<MessageDto> answer = Arrays.stream(BotCommand.values())
+        List<MessageDto> answer = Arrays.stream(RoomAndUserBotCommand.values())
                 .map(s -> yBot.createMessageDto(s.getTitle()))
                 .collect(Collectors.toList());
         answer.addAll(yBot.help());

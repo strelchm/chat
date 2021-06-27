@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum BotCommand {
+public enum RoomAndUserBotCommand {
     ROOM_CREATE("^//room create(?: -c)? \\S+$",
             "//room create {Название комнаты} - создает комнату;\n" +
                     "//room create -c {Название комнаты} - создает приватную комнату.\n"),
@@ -26,7 +26,7 @@ public enum BotCommand {
     USER_BAN("^//user ban(?: -l \\S+)?(?: -m \\d+)?$",
             "//user ban -l {login пользователя} -m {Количество минут} - выгоняет пользователя из всех комнат на m минут.\n" +
                     "//user ban -l {login пользователя} - выгоняет пользователя из всех комнат навсегда."),
-    USER_MODERATOR("^//user moderator \\S+ \\S+ \\S+$",
+    USER_MODERATOR("^//user moderator -[nd] \\S+ \\S+$",
             "//user moderator -n {название комнаты} {login} - назначить пользователя модератором комнаты.\n" +
                     "//user moderator -d {название комнаты} {login} - разжаловать модератора.\n"),
     HELP("^//help$",
