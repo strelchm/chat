@@ -34,6 +34,13 @@ public class UserRoomServiceImpl extends CheckRoomAccessService implements UserR
 
     @Override
     public void deregisterUser(User user, UUID roomId, UserDto userDto) {
+        userRoomRepository.delete(checkAccessAndGetUserRoom(user, roomId, userDto));
+    }
+
+    private UserRoom checkAccessAndGetUserRoom(User user, UUID roomId, UserDto userDto) {
+        if (user.getUserAppRole().equals(UserAppRole.ADMIN)) {
+            throw new BadRequestException("Not applicable to admin.");
+        }
         if (userDto.getId() != user.getId()) {
             checkRoomAccess(userDto, roomId, UserRoomRole.USER, UserRoomRole.BLOCKED_USER);
         }
@@ -42,19 +49,12 @@ public class UserRoomServiceImpl extends CheckRoomAccessService implements UserR
         if (userRoom.getUserRoomRole().equals(UserRoomRole.OWNER)) {
             throw new BadRequestException("Not applicable to room owner.");
         }
-        userRoomRepository.delete(userRoom);
+        return userRoom;
     }
 
     @Override
     public void banUser(User user, UUID roomId, int minutes, UserDto userDto) {
-        if (userDto.getId() != user.getId()) {
-            checkRoomAccess(userDto, roomId, UserRoomRole.USER, UserRoomRole.BLOCKED_USER);
-        }
-        UserRoom userRoom = userRoomRepository.findByUser_IdAndRoom_Id(user.getId(), roomId)
-                .orElseThrow(NotFoundException::new);
-        if (userRoom.getUserRoomRole().equals(UserRoomRole.OWNER)) {
-            throw new BadRequestException("Not applicable to room owner.");
-        }
+        UserRoom userRoom = checkAccessAndGetUserRoom(user, roomId, userDto);
         if (userRoom.getUserRoomRole() != UserRoomRole.BLOCKED_USER) {
             userRoom.setOldRole(userRoom.getUserRoomRole());
         }
@@ -64,7 +64,6 @@ public class UserRoomServiceImpl extends CheckRoomAccessService implements UserR
         userRoom.setBlockedTime(blockedTime);
         userRoomRepository.save(userRoom);
     }
-
 
     @Override
     public void registerUser(User user, UUID roomId, UserRoomRole role, UserDto userDto) {
@@ -86,5 +85,4 @@ public class UserRoomServiceImpl extends CheckRoomAccessService implements UserR
         userRoom.setUserRoomRole(role);
         userRoomRepository.save(userRoom);
     }
-
 }
