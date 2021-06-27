@@ -62,6 +62,9 @@ public class UserRoom {
     @Enumerated(EnumType.STRING)
     private UserRoomRole userRoomRole;
 
+    @Enumerated(EnumType.STRING)
+    private UserRoomRole oldRole;
+
     private LocalDateTime blockedTime;
 
     @CreationTimestamp

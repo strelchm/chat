@@ -58,35 +58,46 @@ public class WebSocketServiceImpl implements WebSocketService {
     @Override
     public List<MessageDto> processBot(MessageDto messageDto, UserDto userDto) {
         String command = messageDto.getText();
-        if (command.matches(YBotCommand.YBOT_CHANNEL_INFO.getRegex())) {
-            return yBot.channelInfo(command);
-        }
-        if (command.matches(YBotCommand.YBOT_HELP.getRegex())) {
-            return yBot.help();
-        }
-        if (command.matches(YBotCommand.YBOT_VIDEO_COMMENT_RANDOM.getRegex())) {
-            return yBot.videoCommentRandom(command);
-        }
-        if (command.matches(YBotCommand.YBOT_FIND.getRegex())) {
-            return yBot.find(command);
-        }
-        if (command.matches(BotCommand.ROOM_REMOVE.getRegex())) {
-            return roomBot.remove(command, userDto);
-        }
-        if (command.matches(BotCommand.ROOM_CREATE.getRegex())) {
-            return roomBot.create(command, userDto);
-        }
-        if (command.matches(BotCommand.HELP.getRegex())) {
-            return roomBot.help();
-        }
-        if (command.matches(BotCommand.ROOM_RENAME.getRegex())) {
-            return roomBot.rename(command, userDto);
-        }
-        if (command.matches(BotCommand.ROOM_CONNECT.getRegex())) {
-            return roomBot.connect(command, userDto);
-        }
-        if (command.matches(BotCommand.ROOM_DISCONNECT.getRegex())) {
-            return roomBot.disconnect(command, userDto);
+        try {
+            if (command.matches(YBotCommand.YBOT_CHANNEL_INFO.getRegex())) {
+                return yBot.channelInfo(command);
+            }
+            if (command.matches(YBotCommand.YBOT_HELP.getRegex())) {
+                return yBot.help();
+            }
+            if (command.matches(YBotCommand.YBOT_VIDEO_COMMENT_RANDOM.getRegex())) {
+                return yBot.videoCommentRandom(command);
+            }
+            if (command.matches(YBotCommand.YBOT_FIND.getRegex())) {
+                return yBot.find(command);
+            }
+            if (command.matches(BotCommand.ROOM_REMOVE.getRegex())) {
+                return roomBot.remove(command, userDto);
+            }
+            if (command.matches(BotCommand.ROOM_CREATE.getRegex())) {
+                return roomBot.create(command, userDto);
+            }
+            if (command.matches(BotCommand.HELP.getRegex())) {
+                return roomBot.help();
+            }
+            if (command.matches(BotCommand.ROOM_RENAME.getRegex())) {
+                return roomBot.rename(command, userDto);
+            }
+            if (command.matches(BotCommand.ROOM_CONNECT.getRegex())) {
+                return roomBot.connect(command, userDto);
+            }
+            if (command.matches(BotCommand.ROOM_DISCONNECT.getRegex())) {
+                return roomBot.disconnect(command, userDto);
+            }
+            if (command.matches(BotCommand.USER_RENAME.getRegex())) {
+                return roomBot.loginRename(command, userDto);
+            }
+            if (command.matches(BotCommand.USER_BAN.getRegex())) {
+                return roomBot.userBan(command, userDto);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return Collections.singletonList(yBot.createMessageDto(ex.getMessage()));
         }
         return Collections.singletonList(yBot.createMessageDto("Команда не распознана."));
     }

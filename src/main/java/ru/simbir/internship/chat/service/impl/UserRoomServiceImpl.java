@@ -14,16 +14,22 @@ import ru.simbir.internship.chat.service.UserRoomService;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
-public class UserRoomImpl extends CheckRoomAccessService implements UserRoomService {
+public class UserRoomServiceImpl extends CheckRoomAccessService implements UserRoomService {
     private final RoomRepository roomRepository;
 
     @Autowired
-    public UserRoomImpl(RoomRepository roomRepository, UserRoomRepository userRoomRepository) {
+    public UserRoomServiceImpl(RoomRepository roomRepository, UserRoomRepository userRoomRepository) {
         super(userRoomRepository);
-        this.roomRepository= roomRepository;
+        this.roomRepository = roomRepository;
+    }
+
+    @Override
+    public List<UserRoom> getAllByUserId(UUID userId) {
+        return userRoomRepository.findByUser_Id(userId);
     }
 
     @Override
@@ -48,6 +54,9 @@ public class UserRoomImpl extends CheckRoomAccessService implements UserRoomServ
                 .orElseThrow(NotFoundException::new);
         if (userRoom.getUserRoomRole().equals(UserRoomRole.OWNER)) {
             throw new BadRequestException("Not applicable to room owner.");
+        }
+        if (userRoom.getUserRoomRole() != UserRoomRole.BLOCKED_USER) {
+            userRoom.setOldRole(userRoom.getUserRoomRole());
         }
         userRoom.setUserRoomRole(UserRoomRole.BLOCKED_USER);
         LocalDateTime blockedTime = LocalDateTime.now();

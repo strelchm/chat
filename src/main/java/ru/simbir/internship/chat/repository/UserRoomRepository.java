@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.simbir.internship.chat.domain.User;
 import ru.simbir.internship.chat.domain.UserRoom;
+import ru.simbir.internship.chat.domain.UserRoomRole;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,4 +15,6 @@ public interface UserRoomRepository extends JpaRepository<UserRoom, UUID> {
     Optional<UserRoom> findByUser_IdAndRoom_Id(UUID userId, UUID roomId);
 
     List<UserRoom> findByUser_Id(UUID userId);
+
+    List<UserRoom> findAllByUserRoomRole(UserRoomRole userRoomRole);
 }

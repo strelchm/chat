@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
         if (dto.getStatus() != null && !user.getStatus().equals(dto.getStatus())) {
             user.setStatus(dto.getStatus());
 
-            if(dto.getStatus() == UserStatus.GLOBAL_BLOCKED) {
+            if (dto.getStatus() == UserStatus.GLOBAL_BLOCKED) {
                 blockedUserRepository.save(new BlockedUser(dto.getId()));
             }
         }
@@ -102,15 +102,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Secured("ROLE_ADMIN")
     public void blockUser(UUID userId, UserDto userDto) {
+        if(userDto.getUserAppRole() != UserAppRole.ADMIN) {
+            throw new AccessDeniedException("Only admin can block users");
+        }
         changeUserStatusByAdmin(userId, userDto, UserStatus.GLOBAL_BLOCKED);
         blockedUserRepository.save(new BlockedUser(userId));
     }
 
     @Override
-    @Secured("ROLE_ADMIN")
     public void unblockUser(UUID userId, UserDto userDto) {
+        if(userDto.getUserAppRole() != UserAppRole.ADMIN) {
+            throw new AccessDeniedException("Only admin can unblock users");
+        }
         changeUserStatusByAdmin(userId, userDto, UserStatus.ACTIVE);
         blockedUserRepository.deleteById(userId);
     }
@@ -118,7 +122,7 @@ public class UserServiceImpl implements UserService {
     private void changeUserStatusByAdmin(UUID userId, UserDto userDto, UserStatus status) {
         User user = getUserById(userId);
 
-        if(user.getStatus() == status) {
+        if (user.getStatus() == status) {
             throw new BadRequestException("Status is already " + status);
         }
 
@@ -133,7 +137,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserDto> getUserByLogin(String login) {
-        User user = userRepository.findByLogin(login).orElse(null);
+        User user = userRepository.findByLogin(login).orElseThrow(() -> new NotFoundException("User with login " + login + " not found"));
         return Optional.ofNullable(MappingUtil.mapToUserDto(user));
     }
 }
