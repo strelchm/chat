@@ -10,6 +10,7 @@ import ru.simbir.internship.chat.dto.RoomDto;
 import ru.simbir.internship.chat.dto.UserDto;
 import ru.simbir.internship.chat.dto.UserRoomDto;
 
+@Service
 public class MappingUtil {
     public static MessageDto mapToMessageDto(Message entity) {
         return MessageMapper.INSTANCE.toDto(entity);

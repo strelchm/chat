@@ -5,7 +5,7 @@ import ru.simbir.internship.chat.dto.UserDto;
 
 import java.util.List;
 
-public interface RoomBot {
+public interface RoomAndUserBot {
 
     List<MessageDto> help();
 
